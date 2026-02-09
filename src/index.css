@@ -11,18 +11,17 @@
   }
 
   body {
-    @apply min-w-[320px] min-h-screen overflow-x-auto;
+    @apply min-h-screen;
+    background-color: #45a173;
+    font-family: 'Open Sans', sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    overflow: hidden;
+    touch-action: none;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  svg {
+    overflow: visible;
   }
-}
-
-svg {
-  overflow: visible;
 }

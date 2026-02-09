@@ -1,50 +1,108 @@
-import { StockPile } from './StockPile'
-import { FoundationPile } from './FoundationPile'
-import { TableauPile } from './TableauPile'
-import { useGameStore } from '../utils/gameStore'
+import { useState, useRef } from 'react'
+import {
+  shuffleDeck,
+  useWindowEvent,
+  moveCard,
+  getCardIsActive,
+  getCardFromPoint,
+  useForceUpdate,
+  getBottomCard,
+  getCardPosition,
+} from '../utils'
+import Card from './Card'
+import debounce from 'lodash/debounce'
+import { Header } from './Header'
 
-export function GameBoard() {
-  const isWon = useGameStore((state) => state.isWon)
-  const newGame = useGameStore((state) => state.newGame)
+const EMPTY_CARDS = [0, 1, 2, 3, 4, 5].map((n) => ({
+  cardPileIndex: -1,
+  pileIndex: n,
+  rank: -1,
+  suit: -1,
+  index: -1,
+})) as CardType[]
+
+type MouseParams = { clientX: number; clientY: number }
+
+function App() {
+  const [activeCard, setActiveCard] = useState<CardType | null>(null)
+  const [cursorState, setCursorState] = useState({ mouseY: 0, mouseX: 0 })
+  const startRef = useRef({ x: 0, y: 0 })
+  const deltaRef = useRef({ x: 0, y: 0 })
+  const [cards, setCards] = useState(shuffleDeck())
+
+  const onMouseDown = ({ clientX, clientY }: MouseParams) => {
+    const card = getCardFromPoint(clientX, clientY, cards)
+
+    if (!card) {
+      return setActiveCard(null)
+    }
+
+    if (activeCard) {
+      const bottomCard = getBottomCard(card, cards)
+      if (bottomCard) setCards(moveCard(cards, activeCard, bottomCard))
+
+      setActiveCard(null)
+    } else {
+      setActiveCard(card)
+    }
+    const { x: mouseX, y: mouseY } = getCardPosition(card)
+    startRef.current = { x: clientX, y: clientY }
+    deltaRef.current = { x: clientX - mouseX, y: clientY - mouseY }
+
+    setCursorState({ mouseX, mouseY })
+  }
+
+  const onMouseMove = ({ clientY, clientX }: MouseParams) => {
+    const mouseY = clientY - deltaRef.current.y
+    const mouseX = clientX - deltaRef.current.x
+    setCursorState({ mouseY, mouseX })
+  }
+
+  const onMouseUp = ({ clientX, clientY }: MouseParams) => {
+    const diffX = Math.abs(startRef.current.x - clientX)
+    const diffY = Math.abs(startRef.current.y - clientY)
+    const passedThreshold = diffX > 15 || diffY > 15
+
+    deltaRef.current = { x: 0, y: 0 }
+
+    if (activeCard) {
+      let clickedCard = getCardFromPoint(clientX, clientY, cards)
+      if (clickedCard) {
+        clickedCard = getBottomCard(clickedCard, cards)!
+        setCards(moveCard(cards, activeCard, clickedCard))
+      }
+      if (passedThreshold) {
+        setActiveCard(null)
+      }
+    }
+  }
+
+  useWindowEvent('resize', debounce(useForceUpdate(), 500))
+  useWindowEvent('pointerup', onMouseUp)
+  useWindowEvent('pointerdown', onMouseDown)
+  useWindowEvent('pointermove', onMouseMove)
+
   return (
-    <div className="flex flex-col gap-8 p-8 bg-green-600 min-h-screen overflow-x-auto">
-      <div className="flex justify-center items-center">
-        <div className="flex gap-4 items-center">
-          <button
-            onClick={newGame}
-            className="px-5 py-2.5 text-base font-bold bg-blue-500 hover:bg-blue-600 text-white border-none rounded cursor-pointer transition-colors duration-200"
-          >
-            New Game
-          </button>
+    <div>
+      <Header onReset={() => setCards(shuffleDeck())} />
 
-          {isWon && (
-            <div className="px-5 py-2.5 text-lg font-bold text-green-600 bg-green-600/20 rounded border-2 border-green-600">
-              You Won!
-            </div>
-          )}
-        </div>
-      </div>
+      {[0, 1, 2, 3, 4, 5].map((n) => (
+        <Card key={`pile-${n}`} card={EMPTY_CARDS[n]} activeCard={null} />
+      ))}
 
-      <div className="flex justify-between items-start gap-4 flex-wrap">
-        <StockPile />
-
-        <div className="flex gap-4">
-          <FoundationPile index={0} />
-          <FoundationPile index={1} />
-          <FoundationPile index={2} />
-          <FoundationPile index={3} />
-        </div>
-      </div>
-
-      <div className="flex gap-4 flex-1 min-h-[500px]">
-        <TableauPile index={0} />
-        <TableauPile index={1} />
-        <TableauPile index={2} />
-        <TableauPile index={3} />
-        <TableauPile index={4} />
-        <TableauPile index={5} />
-        <TableauPile index={6} />
-      </div>
+      {cards.map((card, cardIndex) => {
+        return (
+          <Card
+            key={`card-${cardIndex}`}
+            card={card}
+            activeCard={activeCard}
+            mouseX={getCardIsActive(activeCard, card) ? cursorState.mouseX : -1}
+            mouseY={getCardIsActive(activeCard, card) ? cursorState.mouseY : -1}
+          />
+        )
+      })}
     </div>
   )
 }
+
+export default App

@@ -1,12 +1,57 @@
-import { useDragStore } from '../utils/dragStore'
+import React from 'react'
+import {
+  getCardPosition,
+  getCardSpacing,
+  useWindowEvent,
+  useForceUpdate,
+  getCardIsActive,
+} from '../utils'
+import debounce from 'lodash/debounce'
 
-interface CardProps {
+const Card = ({
+  card,
+  activeCard,
+  mouseX = -1,
+  mouseY = -1,
+}: {
   card: CardType
-  isSelected?: boolean
-  isDraggable?: boolean
-  onClick?: () => void
-  onDoubleClick?: () => void
-  onMouseDown?: (e: React.MouseEvent) => void
+  activeCard: CardType | null
+  mouseX?: number
+  mouseY?: number
+}) => {
+  useWindowEvent('resize', debounce(useForceUpdate(), 500))
+  const { height } = getCardSpacing()
+  const { x: xPos, y: yPos } = getCardPosition(card)
+  const isActive = getCardIsActive(activeCard, card)
+
+  const yOffset =
+    mouseX > -1 && activeCard
+      ? height * Math.abs(activeCard.cardPileIndex - card.cardPileIndex)
+      : 0
+
+  const isDragging = mouseX > -1
+  const x = isDragging ? mouseX : xPos
+  const y = isDragging ? mouseY + yOffset : yPos
+  const scale = isActive ? 1.185 : 1
+  const zIndex = mouseX > -1 ? 35 + card.cardPileIndex : card.cardPileIndex
+
+  return (
+    <div
+      data-index={card.index}
+      data-pileindex={card.pileIndex}
+      className="absolute w-[3.875rem] h-[5.5rem] shadow-xl"
+      style={{
+        scale,
+        zIndex,
+        translate: `${x}px ${y}px`,
+        transition: `scale 0.3s ease-in-out, translate 0.3s ease-in-out`,
+        boxShadow: '0 -0 5px rgba(0, 0, 0, 0.25)',
+      }}
+    >
+      <CardFront suit={card.suit} rank={card.rank} />
+      {/* <CardBack /> */}
+    </div>
+  )
 }
 
 const CARD_WIDTH = 100
@@ -14,91 +59,16 @@ const CARD_HEIGHT = 140
 const CORNER_RADIUS = 8
 const CIRCLE_RADIUS = 35
 
-const SUIT_COLORS: Record<Suit, string> = {
-  red: '#e74c3c',
-  black: '#2c3e50',
-  green: '#27ae60',
-  blue: '#3498db',
-}
-
-export function Card({
-  card,
-  isSelected = false,
-  isDraggable = false,
-  onClick,
-  onDoubleClick,
-  onMouseDown,
-}: CardProps) {
-  const dragState = useDragStore()
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onClick?.()
-  }
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onDoubleClick?.()
-  }
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!isDraggable) return
-    e.stopPropagation()
-    onMouseDown?.(e)
-  }
-
-  const isDisabled = !isDraggable && !card.faceUp
-
-  const isPartOfDragGroup =
-    dragState.isDragging &&
-    dragState.cards.some((c: CardType) => c.id === card.id)
-
-  let transform = ''
-  let zIndex = 0
-  let transition = 'transform 0.2s'
-
-  if (isPartOfDragGroup) {
-    const deltaX = dragState.currentX - dragState.startX - dragState.offsetX
-    const deltaY = dragState.currentY - dragState.startY - dragState.offsetY
-    transform = `translate(${deltaX}px, ${deltaY}px)`
-    zIndex = 1000
-    transition = ''
-  }
-
-  const className = `
-    w-[100px] h-[140px] cursor-pointer select-none relative
-    ${isSelected && !isPartOfDragGroup ? 'outline outline-[3px] outline-blue-500 rounded-lg' : ''}
-    ${isDisabled ? 'cursor-not-allowed opacity-80' : ''}
-  `.trim()
-
-  return (
-    <div
-      className={className}
-      onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
-      onMouseDown={handleMouseDown}
-      style={{ transform, zIndex, transition }}
-    >
-      <div className="pointer-events-none block">
-        {card.faceUp ? (
-          <CardFront suit={card.suit} rank={card.rank} />
-        ) : (
-          <CardBack />
-        )}
-      </div>
-    </div>
-  )
-}
+const SUIT_COLORS: string[] = ['#e74c3c', '#2c3e50', '#27ae60', '#3498db']
 
 function CardFront({ suit, rank }: { suit: Suit; rank: Rank }) {
   const color = SUIT_COLORS[suit]
 
   return (
     <svg
-      width={CARD_WIDTH}
-      height={CARD_HEIGHT}
       viewBox={`0 0 ${CARD_WIDTH} ${CARD_HEIGHT}`}
       xmlns="http://www.w3.org/2000/svg"
+      className="pointer-events-none w-full h-full select-none"
     >
       <rect
         width={CARD_WIDTH}
@@ -143,22 +113,23 @@ function CardFront({ suit, rank }: { suit: Suit; rank: Rank }) {
   )
 }
 
-function CardBack() {
-  return (
-    <svg
-      width={CARD_WIDTH}
-      height={CARD_HEIGHT}
-      viewBox={`0 0 ${CARD_WIDTH} ${CARD_HEIGHT}`}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        width={CARD_WIDTH}
-        height={CARD_HEIGHT}
-        rx={CORNER_RADIUS}
-        fill="#34495e"
-        stroke="#333"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
+// function CardBack() {
+//   return (
+//     <svg
+//       viewBox={`0 0 ${CARD_WIDTH} ${CARD_HEIGHT}`}
+//       xmlns="http://www.w3.org/2000/svg"
+//       className="pointer-events-none w-full h-full select-none"
+//     >
+//       <rect
+//         width={CARD_WIDTH}
+//         height={CARD_HEIGHT}
+//         rx={CORNER_RADIUS}
+//         fill="#34495e"
+//         stroke="#333"
+//         strokeWidth="2"
+//       />
+//     </svg>
+//   )
+// }
+
+export default React.memo(Card)

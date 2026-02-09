@@ -1,39 +1,10 @@
-type Suit = 'red' | 'black' | 'green' | 'blue'
-type Rank =
-  | 'A'
-  | '2'
-  | '3'
-  | '4'
-  | '5'
-  | '6'
-  | '7'
-  | '8'
-  | '9'
-  | '10'
-  | 'J'
-  | 'Q'
-  | 'K'
+type Suit = -1 | 0 | 1 | 2 | 3
+type Rank = -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 
 interface CardType {
-  id: string
+  index: number
+  pileIndex: number
+  cardPileIndex: number
   suit: Suit
   rank: Rank
-  faceUp: boolean
-}
-
-type PileType = 'waste' | 'foundation' | 'tableau'
-
-interface SelectedCards {
-  cards: CardType[]
-  sourceType: PileType
-  sourceIndex?: number
-}
-
-interface GameState {
-  stock: CardType[]
-  waste: CardType[]
-  foundations: CardType[][]
-  tableau: CardType[][]
-  selectedCards: SelectedCards | null
-  isWon: boolean
 }
