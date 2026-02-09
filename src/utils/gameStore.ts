@@ -1,229 +1,176 @@
 import { create } from 'zustand'
-import {
-  generateDeck,
-  shuffleDeck,
-  validateMoveToFoundation,
-  validateMoveToTableau,
-} from './cardUtils'
+import { getCardPosition } from '.'
+import { chunk, shuffle } from 'lodash'
+import { CARDS, PILE_COUNT } from './constants'
 
-function initializeGame(): GameState {
-  const deck = shuffleDeck(generateDeck())
-  const tableau: GameState['tableau'] = [[], [], [], [], [], [], []]
-
-  let cardIndex = 0
-
-  // Deal cards to tableau (1, 2, 3, 4, 5, 6, 7 cards per pile)
-  for (let pile = 0; pile < 7; pile++) {
-    for (let card = 0; card <= pile; card++) {
-      const currentCard = deck[cardIndex++]
-      // Only the top card is face-up
-      currentCard.faceUp = card === pile
-      tableau[pile].push(currentCard)
-    }
-  }
-
-  // Remaining cards go to stock (all face-down)
-  const stock = deck.slice(cardIndex)
-
-  return {
-    stock,
-    waste: [],
-    foundations: [[], [], [], []],
-    tableau,
-    selectedCards: null,
-    isWon: false,
-  }
+type MouseParams = { clientX: number; clientY: number }
+interface GameState {
+  cards: CardType[]
+  activeCard: CardType | null
+  cursorState: { mouseX: number; mouseY: number; pressed: boolean }
 }
-
-interface GameStore {
-  // State
-  stock: CardType[]
-  waste: CardType[]
-  foundations: CardType[][]
-  tableau: CardType[][]
-  selectedCards: {
-    cards: CardType[]
-    sourceType: PileType
-    sourceIndex?: number
-  } | null
-  isWon: boolean
-
-  // Actions
+interface GameStore extends GameState {
   newGame: () => void
-  drawCard: () => void
-  selectCards: (
-    cards: CardType[],
-    sourceType: PileType,
-    sourceIndex?: number,
-  ) => void
-  deselectCards: () => void
-  moveToFoundation: (foundationIndex: number) => void
-  moveToTableau: (tableauIndex: number) => void
-  checkWinCondition: () => void
+  moveCard: (clickedCard: CardType) => void
+  selectCard: (card: CardType | null) => void
+  onMouseDown: (params: MouseParams) => void
+  onMouseUp: (params: MouseParams) => void
+  onMouseMove: (params: MouseParams) => void
 }
+
+let cursorStartRef = { x: 0, y: 0 }
+let cursorDeltaRef = { x: 0, y: 0 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
-  // Initial state
   ...initializeGame(),
-
-  // Initialize new game
-  newGame: () => {
-    set(initializeGame())
+  newGame: () => set(initializeGame()),
+  moveCard: (clickedCard: CardType) => {
+    set({
+      cards: moveCard(get().cards, get().activeCard!, clickedCard),
+    })
   },
+  selectCard: (clickedCard: CardType | null) => {
+    set({ activeCard: clickedCard })
+  },
+  onMouseDown: ({ clientX, clientY }: MouseParams) => {
+    const card = getCardFromPoint(clientX, clientY, get().cards)
+    if (card) {
+      const { activeCard, cards, moveCard, selectCard } = get()
 
-  // Draw card from stock to waste
-  drawCard: () => {
-    const { stock, waste } = get()
+      if (activeCard) {
+        const bottomCard = getBottomCard(card, cards)
+        if (bottomCard) moveCard(bottomCard)
 
-    if (stock.length === 0) {
-      // Refresh stock from waste (reverse order)
-      const newStock = [...waste].reverse().map((card) => ({
-        ...card,
-        faceUp: false,
-      }))
-      set({ stock: newStock, waste: [], selectedCards: null })
+        selectCard(null)
+      } else {
+        selectCard(card)
+      }
+      const { x: mouseX, y: mouseY } = getCardPosition(card)
+      cursorStartRef = { x: clientX, y: clientY }
+      cursorDeltaRef = { x: clientX - mouseX, y: clientY - mouseY }
+
+      set({ cursorState: { mouseX, mouseY, pressed: true } })
     } else {
-      const newStock = [...stock]
-      const drawnCard = newStock.pop()!
-      drawnCard.faceUp = true
-
-      set({
-        stock: newStock,
-        waste: [...waste, drawnCard],
-        selectedCards: null,
-      })
+      get().selectCard(null)
     }
   },
+  onMouseUp: ({ clientX, clientY }: MouseParams) => {
+    const diffX = Math.abs(cursorStartRef.x - clientX)
+    const diffY = Math.abs(cursorStartRef.y - clientY)
+    const passedThreshold = diffX > 15 || diffY > 15
 
-  // Select cards
-  selectCards: (cards, sourceType, sourceIndex) => {
+    cursorDeltaRef = { x: 0, y: 0 }
     set({
-      selectedCards: {
-        cards,
-        sourceType,
-        sourceIndex,
+      cursorState: {
+        mouseX: get().cursorState.mouseX,
+        mouseY: get().cursorState.mouseY,
+        pressed: false,
       },
     })
+
+    if (get().activeCard) {
+      let clickedCard = getCardFromPoint(clientX, clientY, get().cards)
+      const bottomCard = getBottomCard(clickedCard, get().cards)!
+      if (bottomCard) clickedCard = bottomCard
+      if (clickedCard) {
+        get().moveCard(clickedCard)
+      }
+      if (passedThreshold) {
+        get().selectCard(null)
+      }
+    }
   },
-
-  // Deselect cards
-  deselectCards: () => {
-    set({ selectedCards: null })
-  },
-
-  // Move selected cards to foundation
-  moveToFoundation: (foundationIndex) => {
-    const { selectedCards, waste, tableau, foundations } = get()
-
-    if (!selectedCards) return
-
-    const { cards, sourceType, sourceIndex } = selectedCards
-
-    // Validate move
-    if (!validateMoveToFoundation(cards, foundations[foundationIndex])) {
-      set({ selectedCards: null })
-      return
-    }
-
-    const newFoundations = foundations.map((pile, idx) =>
-      idx === foundationIndex ? [...pile, cards[0]] : pile,
-    )
-
-    let newWaste = waste
-    let newTableau = tableau
-
-    // Remove from source
-    if (sourceType === 'waste') {
-      newWaste = waste.slice(0, -1)
-    } else if (sourceType === 'tableau' && sourceIndex !== undefined) {
-      newTableau = tableau.map((pile, idx) => {
-        if (idx !== sourceIndex) return pile
-
-        const newPile = pile.slice(0, -cards.length)
-
-        // Flip top card if exists
-        if (newPile.length > 0 && !newPile[newPile.length - 1].faceUp) {
-          newPile[newPile.length - 1] = {
-            ...newPile[newPile.length - 1],
-            faceUp: true,
-          }
-        }
-
-        return newPile
-      })
-    }
-
-    set({
-      foundations: newFoundations,
-      waste: newWaste,
-      tableau: newTableau,
-      selectedCards: null,
-    })
-
-    get().checkWinCondition()
-  },
-
-  // Move selected cards to tableau
-  moveToTableau: (tableauIndex) => {
-    const { selectedCards, waste, tableau, foundations } = get()
-
-    if (!selectedCards) return
-
-    const { cards, sourceType, sourceIndex } = selectedCards
-
-    // Validate move
-    if (!validateMoveToTableau(cards, tableau[tableauIndex])) {
-      set({ selectedCards: null })
-      return
-    }
-
-    let newTableau = tableau.map((pile, idx) =>
-      idx === tableauIndex ? [...pile, ...cards] : pile,
-    )
-
-    let newWaste = waste
-    let newFoundations = foundations
-
-    // Remove from source
-    if (sourceType === 'waste') {
-      newWaste = waste.slice(0, -1)
-    } else if (sourceType === 'foundation' && sourceIndex !== undefined) {
-      newFoundations = foundations.map((pile, idx) =>
-        idx === sourceIndex ? pile.slice(0, -1) : pile,
-      )
-    } else if (sourceType === 'tableau' && sourceIndex !== undefined) {
-      newTableau = newTableau.map((pile, idx) => {
-        if (idx !== sourceIndex) return pile
-
-        const newPile = pile.slice(0, -cards.length)
-
-        // Flip top card if exists
-        if (newPile.length > 0 && !newPile[newPile.length - 1].faceUp) {
-          newPile[newPile.length - 1] = {
-            ...newPile[newPile.length - 1],
-            faceUp: true,
-          }
-        }
-
-        return newPile
-      })
-    }
-
-    set({
-      tableau: newTableau,
-      waste: newWaste,
-      foundations: newFoundations,
-      selectedCards: null,
-    })
-  },
-
-  // Check if game is won
-  checkWinCondition: () => {
-    const { foundations } = get()
-    const isWon = foundations.every((pile) => pile.length === 13)
-
-    if (isWon) {
-      set({ isWon: true })
-    }
+  onMouseMove: ({ clientX, clientY }: MouseParams) => {
+    const mouseY = clientY - cursorDeltaRef.y
+    const mouseX = clientX - cursorDeltaRef.x
+    set({ cursorState: { mouseX, mouseY, pressed: get().cursorState.pressed } })
   },
 }))
+
+function initializeGame(): GameState {
+  const cards = chunk(shuffle(CARDS), PILE_COUNT)
+    .flatMap((pile, pileIndex) =>
+      pile.map((n, i) => ({ ...n, cardPileIndex: i, pileIndex })),
+    )
+    .map((c, i) => ({ ...c, index: i }))
+
+  return {
+    cards,
+    activeCard: null,
+    cursorState: { mouseX: 0, mouseY: 0, pressed: false },
+  }
+}
+
+const moveCard = (
+  cards: CardType[],
+  movedCard: CardType,
+  destinationCard: CardType,
+) => {
+  const sourcePile = getCardPile(movedCard, cards)
+  if (!destinationCard) {
+    return cards
+  }
+
+  const numToMove = sourcePile.length - movedCard.cardPileIndex
+
+  const movingCards = sourcePile.slice(
+    movedCard.cardPileIndex,
+    movedCard.cardPileIndex + numToMove,
+  )
+
+  const validOrder = isDescending([
+    destinationCard.rank,
+    ...movingCards.map((m) => m.rank),
+  ])
+
+  return cards.map((card) => {
+    if (
+      card.pileIndex !== movedCard.pileIndex ||
+      movedCard.pileIndex === destinationCard.pileIndex
+    ) {
+      return card
+    }
+
+    if (!movingCards.map((c) => c.index).includes(card.index)) {
+      return card
+    }
+
+    if (validOrder && !Number.isNaN(destinationCard.pileIndex)) {
+      const cardPileIndex =
+        destinationCard.cardPileIndex +
+        movingCards.findIndex((c) => c.index === card.index) +
+        1
+
+      return {
+        ...card,
+        pileIndex: destinationCard.pileIndex,
+        cardPileIndex,
+      }
+    }
+
+    return card
+  })
+}
+
+const getBottomCard = (card: CardType | undefined, cards: CardType[]) =>
+  card ? getCardPile(card, cards).at(-1) : null
+
+const getCardFromPoint = (x: number, y: number, cards: CardType[]) => {
+  const elementUnder = document.elementFromPoint(x, y) as HTMLDivElement
+
+  if (elementUnder?.dataset.index) {
+    return cards[+elementUnder.dataset.index]
+  }
+
+  return undefined
+}
+
+const isDescending = (numbers: number[]) =>
+  numbers.filter((number, index) => {
+    return numbers[index + 1] ? number === numbers[index + 1] + 1 : true
+  }).length === numbers.length
+
+const getCardPile = (card: CardType, cards: CardType[]) => {
+  const pile = cards.filter((c) => c.pileIndex === card.pileIndex)
+  return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
+}
