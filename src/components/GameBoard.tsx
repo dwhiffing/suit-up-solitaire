@@ -28,6 +28,7 @@ function App() {
   const [cursorState, setCursorState] = useState({ mouseY: 0, mouseX: 0 })
   const startRef = useRef({ x: 0, y: 0 })
   const deltaRef = useRef({ x: 0, y: 0 })
+  const [pressed, setPressed] = useState(false)
   const [cards, setCards] = useState(shuffleDeck())
 
   const onMouseDown = ({ clientX, clientY }: MouseParams) => {
@@ -48,6 +49,7 @@ function App() {
     const { x: mouseX, y: mouseY } = getCardPosition(card)
     startRef.current = { x: clientX, y: clientY }
     deltaRef.current = { x: clientX - mouseX, y: clientY - mouseY }
+    setPressed(true)
 
     setCursorState({ mouseX, mouseY })
   }
@@ -64,11 +66,13 @@ function App() {
     const passedThreshold = diffX > 15 || diffY > 15
 
     deltaRef.current = { x: 0, y: 0 }
+    setPressed(false)
 
     if (activeCard) {
       let clickedCard = getCardFromPoint(clientX, clientY, cards)
+      const bottomCard = getBottomCard(clickedCard, cards)!
+      if (bottomCard) clickedCard = bottomCard
       if (clickedCard) {
-        clickedCard = getBottomCard(clickedCard, cards)!
         setCards(moveCard(cards, activeCard, clickedCard))
       }
       if (passedThreshold) {
@@ -96,8 +100,16 @@ function App() {
             key={`card-${cardIndex}`}
             card={card}
             activeCard={activeCard}
-            mouseX={getCardIsActive(activeCard, card) ? cursorState.mouseX : -1}
-            mouseY={getCardIsActive(activeCard, card) ? cursorState.mouseY : -1}
+            mouseX={
+              getCardIsActive(activeCard, card) && pressed
+                ? cursorState.mouseX
+                : -1
+            }
+            mouseY={
+              getCardIsActive(activeCard, card) && pressed
+                ? cursorState.mouseY
+                : -1
+            }
           />
         )
       })}

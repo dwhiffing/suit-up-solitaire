@@ -34,6 +34,7 @@ const Card = ({
   const y = isDragging ? mouseY + yOffset : yPos
   const scale = isActive ? 1.185 : 1
   const zIndex = mouseX > -1 ? 35 + card.cardPileIndex : card.cardPileIndex
+  const transitionProperty = isDragging ? 'scale' : 'scale, translate'
 
   return (
     <div
@@ -44,8 +45,11 @@ const Card = ({
         scale,
         zIndex,
         translate: `${x}px ${y}px`,
-        transition: `scale 0.3s ease-in-out, translate 0.3s ease-in-out`,
+        transitionProperty,
+        transitionDuration: '0.3s',
+        transitionTimingFunction: 'ease-in-out',
         boxShadow: '0 -0 5px rgba(0, 0, 0, 0.25)',
+        pointerEvents: isActive ? 'none' : 'auto',
       }}
     >
       <CardFront suit={card.suit} rank={card.rank} />

@@ -89,7 +89,10 @@ export function getCardIsActive(activeCard: CardType | null, card: CardType) {
   return isActive
 }
 
-export const getBottomCard = (card: CardType, cards: CardType[]) => {
+export const getBottomCard = (
+  card: CardType | undefined,
+  cards: CardType[],
+) => {
   if (!card) {
     return null
   }
