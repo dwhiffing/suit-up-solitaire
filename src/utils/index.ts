@@ -1,6 +1,5 @@
-import clamp from 'lodash/clamp'
 import { useEffect, useState } from 'react'
-import { CARD_X_GAP, CARD_Y_GAP, PILE_COUNT } from './constants'
+import { CARD_HEIGHT, CARD_Y_GAP } from './constants'
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -16,26 +15,14 @@ export const useWindowEvent = (event: any, callback: any) => {
 }
 
 export const getCardPosition = (card: CardType) => {
-  const cardWidth = convertRemToPixels(3.875)
-  // const cardHeight = cardWidth * 1.387
-
-  const outerWidth = document.documentElement.clientWidth
-  const outerHeight = clamp(document.documentElement.clientHeight, 740)
-  const pileWidth = cardWidth + CARD_X_GAP
-
-  const yBuffer = outerHeight / 2
-  const xBuffer = (outerWidth - (pileWidth * PILE_COUNT - CARD_X_GAP)) / 2
-
-  const x = xBuffer + card.pileIndex * pileWidth
-  const y = yBuffer + card.cardPileIndex * CARD_Y_GAP
-
-  return { x, y }
-}
-
-function convertRemToPixels(rem: number) {
-  const rootFontSize = parseFloat(
-    getComputedStyle(document.documentElement).fontSize,
+  const pileEl = document.querySelector(
+    `.pile[data-pileindex="${card.pileIndex}"]`,
   )
+  const rect = pileEl?.getBoundingClientRect() ?? { x: 0, y: 0 }
+  const { x: pileX, y: pileY } = rect
 
-  return rem * rootFontSize
+  return {
+    x: pileX,
+    y: pileY + card.cardPileIndex * (CARD_Y_GAP * CARD_HEIGHT),
+  }
 }

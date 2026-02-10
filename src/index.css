@@ -24,4 +24,17 @@
   svg {
     overflow: visible;
   }
+
+  .pile {
+    @apply rounded-md border-2 border-[#ffffff33] bg-[#ffffff22] aspect-square;
+  }
+
+  .card {
+    @apply absolute overflow-hidden pointer-events-auto;
+    transition-timing-function: ease-in-out;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+    border-radius: 0.3rem;
+    border: 0.08rem solid #333;
+  }
 }
