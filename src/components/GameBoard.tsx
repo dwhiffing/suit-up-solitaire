@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce'
 import { Header } from './Header'
 import { useGameStore } from '../utils/gameStore'
 import { useShallow } from 'zustand/react/shallow'
-import { CARD_WIDTH, PILE_COUNT } from '../utils/constants'
+import { CARD_WIDTH, PILE_COUNT, SUIT_COLORS } from '../utils/constants'
 
 function App() {
   const state = useGameStore(
@@ -28,12 +28,13 @@ function App() {
         <Header onReset={() => state.newGame()} />
 
         <div className="flex flex-col justify-center h-full">
-          <div className="h-[300px] w-full flex gap-6 items-start justify-center">
-            {Array.from({ length: PILE_COUNT }).map((_, pileIndex) => (
+          <div className="h-[100px] w-full flex gap-6 items-start justify-center">
+            {Array.from({ length: SUIT_COLORS.length }).map((_, pileIndex) => (
               <div
                 key={`pile-${pileIndex}`}
                 className="pile"
-                data-pileindex={pileIndex}
+                data-pileindex={pileIndex + PILE_COUNT}
+                data-type="foundation"
                 style={{ width: `${CARD_WIDTH}rem` }}
               />
             ))}
@@ -43,7 +44,8 @@ function App() {
               <div
                 key={`pile-${pileIndex}`}
                 className="pile"
-                data-pileindex={pileIndex + PILE_COUNT}
+                data-pileindex={pileIndex}
+                data-type="tableau"
                 style={{ width: `${CARD_WIDTH}rem` }}
               />
             ))}

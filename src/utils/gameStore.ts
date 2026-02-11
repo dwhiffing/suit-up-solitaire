@@ -1,14 +1,16 @@
 import { create } from 'zustand'
-import { getCardPosition } from '.'
+import { getCardPilePosition } from '.'
 import { chunk, shuffle } from 'lodash'
 import { CARDS, PILE_COUNT } from './constants'
 
 type MouseParams = { clientX: number; clientY: number }
+
 export interface GameState {
   cards: CardType[]
   activeCard: CardType | null
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
 }
+
 interface GameStore extends GameState {
   newGame: () => void
   onMouseDown: (params: MouseParams) => void
@@ -31,14 +33,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { activeCard, cards } = get()
     const clickedCard = getCardFromPoint(clientX, clientY, get().cards)
 
-    set({ activeCard: activeCard ? null : clickedCard })
-
     if (activeCard) {
       set(moveCard(cards, activeCard, clientX, clientY))
     }
 
+    if (
+      clickedCard &&
+      clickedCard.cardPileIndex === getCardPile(clickedCard, cards).length - 1
+    ) {
+      set({ activeCard: activeCard ? null : clickedCard })
+    }
+
     if (clickedCard) {
-      const { x: cardX, y: cardY } = getCardPosition(clickedCard)
+      const { x: cardX, y: cardY } = getCardPilePosition(clickedCard)
       cursorDownPos = { x: clientX, y: clientY }
       cursorDelta = { x: clientX - cardX, y: clientY - cardY }
       cursorDownAt = Date.now()
@@ -46,18 +53,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
   onMouseUp: ({ clientX, clientY }: MouseParams) => {
-    cursorDownPos = { x: 0, y: 0 }
-    cursorDelta = { x: 0, y: 0 }
-    set({ cursorState: { ...get().cursorState, pressed: false } })
-
     const { activeCard, cards } = get()
     const posDiff =
       Math.abs(cursorDownPos.x - clientX) + Math.abs(cursorDownPos.y - clientY)
     const timeDiff = Date.now() - cursorDownAt
 
-    if (posDiff > 5 && timeDiff > 100) {
+    if (posDiff > 5 || timeDiff > 300) {
       set(moveCard(cards, activeCard, clientX, clientY))
     }
+
+    cursorDownPos = { x: 0, y: 0 }
+    cursorDelta = { x: 0, y: 0 }
+    set({ cursorState: { ...get().cursorState, pressed: false } })
   },
   onMouseMove: ({ clientX, clientY }: MouseParams) => {
     const mouseX = clientX - cursorDelta.x
@@ -72,7 +79,8 @@ function initializeGame(): GameState {
       pile.map((n, i) => ({
         ...n,
         cardPileIndex: i,
-        pileIndex,
+        pileIndex:
+          pileIndex >= Math.floor(PILE_COUNT / 2) ? pileIndex + 1 : pileIndex,
       })),
     )
     .map((c, i) => ({ ...c, id: i }))
@@ -104,7 +112,14 @@ const moveCard = (
     .sort((a, b) => a.cardPileIndex - b.cardPileIndex)
     .at(-1)
 
-  if (targetCard && !isDescending([targetCard, ...movingCards]))
+  if (
+    targetCard &&
+    !(
+      (isDescending([targetCard, ...movingCards]) ||
+        isAscending([targetCard, ...movingCards])) &&
+      movingCards.every((c) => c.suit === targetCard.suit)
+    )
+  )
     return {
       activeCard: null,
       cards,
@@ -142,6 +157,11 @@ const getPileFromPoint = (x: number, y: number) => {
 const isDescending = (cards: CardType[]) =>
   cards.filter((card, i) =>
     cards[i + 1] ? card.rank === cards[i + 1].rank + 1 : true,
+  ).length === cards.length
+
+const isAscending = (cards: CardType[]) =>
+  cards.filter((card, i) =>
+    cards[i + 1] ? card.rank === cards[i + 1].rank - 1 : true,
   ).length === cards.length
 
 const getCardPile = (card: CardType, cards: CardType[]) => {

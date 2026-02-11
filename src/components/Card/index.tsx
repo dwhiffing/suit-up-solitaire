@@ -3,7 +3,11 @@ import debounce from 'lodash/debounce'
 import { useShallow } from 'zustand/react/shallow'
 
 import { CardBack, CardFront } from './svg'
-import { getCardPosition, useWindowEvent, useForceUpdate } from '../../utils'
+import {
+  getCardPilePosition,
+  useWindowEvent,
+  useForceUpdate,
+} from '../../utils'
 import { useGameStore, type GameState } from '../../utils/gameStore'
 import {
   CARD_Y_GAP,
@@ -15,7 +19,10 @@ import {
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
   const [zIndex, setZIndex] = useState(store.card.cardPileIndex)
+  const [hasMounted, setHasMounted] = useState(false)
   useWindowEvent('resize', debounce(useForceUpdate(), 500))
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setHasMounted(true), [])
 
   // delay changes to zIndex until after transition completes
   useEffect(() => {
@@ -33,8 +40,12 @@ const Card = ({ cardId }: { cardId: number }) => {
     pointerEvents: (store.isDragging ? 'none' : 'auto') as 'none' | 'auto',
     width: `${CARD_WIDTH}rem`,
     translate: `${store.x}px ${store.y}px`,
-    transitionDuration: `${CARD_TRANSITION_DURATION}ms`,
+    transitionDuration: hasMounted ? `${CARD_TRANSITION_DURATION}ms` : '0ms',
+    boxShadow:
+      store.pileType === 'tableau' ? '0 0 5px rgba(0, 0, 0, 0.25)' : 'none',
   }
+
+  if (!hasMounted) return null
 
   return (
     <div data-id={cardId} className="card" style={style}>
@@ -50,7 +61,7 @@ const Card = ({ cardId }: { cardId: number }) => {
 const getShallowCardState = (cardId: number) => (state: GameState) => {
   const card = state.cards[cardId]
   const { pressed, mouseX, mouseY } = state.cursorState
-  const { x: xPos, y: yPos } = getCardPosition(card)
+  const { x: xPos, y: yPos, pileType } = getCardPilePosition(card)
 
   const activeIndex = state.activeCard?.cardPileIndex ?? 0
   const samePile = state.activeCard?.pileIndex === card.pileIndex
@@ -66,7 +77,7 @@ const getShallowCardState = (cardId: number) => (state: GameState) => {
   const zIndex = cardIndex + (isDragging ? 100 : 0)
   const scale = isActive ? 1.15 : 1
 
-  return { card, x, y, zIndex, scale, isDragging }
+  return { card, x, y, zIndex, scale, isDragging, pileType }
 }
 
 export default memo(Card)
