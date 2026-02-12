@@ -13,7 +13,7 @@ import { CARD_Y_GAP, CARD_TRANSITION_DURATION } from '../../utils/constants'
 
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
-  const [zIndex, setZIndex] = useState(store.card.cardPileIndex)
+  const [isActive, setIsActive] = useState(false)
   const [hasMounted, setHasMounted] = useState(false)
   useWindowEvent('resize', debounce(useForceUpdate(), 500))
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -22,21 +22,21 @@ const Card = ({ cardId }: { cardId: number }) => {
   // delay changes to zIndex until after transition completes
   useEffect(() => {
     const timeout = setTimeout(
-      () => setZIndex(store.zIndex),
-      CARD_TRANSITION_DURATION,
+      () => setIsActive(store.isActive),
+      !isActive && store.isActive ? 0 : CARD_TRANSITION_DURATION,
     )
     return () => clearTimeout(timeout)
-  }, [store.isDragging, store.zIndex])
+  }, [isActive, store.isActive])
 
   const isFaceUp = true
 
   const style = {
-    zIndex: store.isDragging ? 999 : zIndex,
+    zIndex: store.zIndex + (isActive ? 1000 : 0),
     scale: store.scale,
-    transitionProperty: store.isDragging ? 'scale' : 'scale, translate',
-    pointerEvents: (store.isDragging ? 'none' : 'auto') as 'none' | 'auto',
+    transitionProperty:
+      !hasMounted || store.isActive ? 'scale' : 'scale, translate',
+    pointerEvents: (store.isActive ? 'none' : 'auto') as 'none' | 'auto',
     translate: `${store.x}px ${store.y}px`,
-    transitionDuration: hasMounted ? `${CARD_TRANSITION_DURATION}ms` : '0ms',
     boxShadow:
       store.pileType === 'tableau' ? '0 0 5px rgba(0, 0, 0, 0.25)' : 'none',
   }
@@ -56,24 +56,22 @@ const Card = ({ cardId }: { cardId: number }) => {
 
 const getShallowCardState = (cardId: number) => (state: GameState) => {
   const card = state.cards[cardId]
-  const { pressed, mouseX, mouseY } = state.cursorState
+  const { mouseX, mouseY, pressed } = state.cursorState
   const { x: xPos, y: yPos, pileType, width } = getCardPilePosition(card)
 
   const activeIndex = state.activeCard?.cardPileIndex ?? 0
-  const samePile = state.activeCard?.pileIndex === card.pileIndex
   const cardIndex = card.cardPileIndex
 
-  const isActive = samePile && activeIndex <= cardIndex
-  const isDragging = pressed && isActive
+  const isActive = cardId === state.activeCard?.id
 
   const yDiff = Math.abs(activeIndex - cardIndex) * (CARD_Y_GAP * width)
 
-  const x = isDragging ? mouseX : xPos
-  const y = isDragging ? mouseY + yDiff : yPos
-  const zIndex = cardIndex + (isDragging ? 100 : 0)
+  const x = isActive && pressed ? mouseX : xPos
+  const y = isActive && pressed ? mouseY + yDiff : yPos
+  const zIndex = cardIndex
   const scale = isActive ? 1.15 : 1
 
-  return { card, x, y, zIndex, scale, isDragging, pileType }
+  return { card, x, y, zIndex, scale, isActive, pileType }
 }
 
 export default memo(Card)

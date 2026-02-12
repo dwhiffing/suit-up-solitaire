@@ -43,6 +43,7 @@
   .card {
     @apply absolute overflow-hidden pointer-events-auto;
     transition-timing-function: ease-in-out;
+    transition-duration: 200ms;
     pointer-events: auto;
     border: 0.08rem solid #333;
   }

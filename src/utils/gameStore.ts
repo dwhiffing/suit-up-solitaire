@@ -165,9 +165,12 @@ const checkAndCascade = (
   if (!suitsMatch || !ranksAdjacent) return
 
   setTimeout(() => {
-    moveCard(nextCard, targetPileIndex, get, set)
-    checkAndCascade(sourcePileIndex, targetPileIndex, get, set)
-  }, CARD_TRANSITION_DURATION / 2)
+    set({ activeCard: nextCard })
+    setTimeout(() => {
+      moveCard(nextCard, targetPileIndex, get, set)
+      checkAndCascade(sourcePileIndex, targetPileIndex, get, set)
+    }, CARD_TRANSITION_DURATION / 2)
+  }, 0)
 }
 
 const getCardFromPoint = (x: number, y: number, cards: CardType[]) => {
