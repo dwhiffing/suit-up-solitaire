@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CARD_HEIGHT, CARD_Y_GAP } from './constants'
+import { CARD_Y_GAP } from './constants'
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -19,17 +19,19 @@ export const getCardPilePosition = (card: CardType) => {
     `.pile[data-pileindex="${card.pileIndex}"]`,
   ) as HTMLDivElement | null
   const pilePos = pileEl?.getBoundingClientRect()
+  const width = pileEl?.offsetWidth ?? 0
 
   let offsetY = 0
-  const pileType = pileEl?.dataset.type ?? 'tableau'
+  const pileType = pileEl?.dataset.piletype ?? 'tableau'
 
   if (pileType === 'tableau') {
-    offsetY = card.cardPileIndex * (CARD_Y_GAP * CARD_HEIGHT)
+    offsetY = card.cardPileIndex * (CARD_Y_GAP * width)
   }
 
   return {
     x: pilePos?.x ?? 0,
     y: (pilePos?.y ?? 0) + offsetY,
     pileType,
+    width,
   }
 }

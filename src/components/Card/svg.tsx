@@ -19,13 +19,15 @@ const _CardFront = ({ suit, rank }: { suit: Suit; rank: Rank }) => {
       <text
         x="6"
         y="18"
-        fontSize="16"
+        fontSize="18"
         fontWeight="bold"
         fill={color}
         fontFamily="Arial, sans-serif"
       >
         {rank}
       </text>
+
+      <circle cx="25" cy="12" r={5} fill={color} />
 
       <circle
         cx={SVG_CARD_WIDTH / 2}

@@ -9,12 +9,7 @@ import {
   useForceUpdate,
 } from '../../utils'
 import { useGameStore, type GameState } from '../../utils/gameStore'
-import {
-  CARD_Y_GAP,
-  CARD_HEIGHT,
-  CARD_TRANSITION_DURATION,
-  CARD_WIDTH,
-} from '../../utils/constants'
+import { CARD_Y_GAP, CARD_TRANSITION_DURATION } from '../../utils/constants'
 
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
@@ -38,7 +33,6 @@ const Card = ({ cardId }: { cardId: number }) => {
     scale: store.scale,
     transitionProperty: store.isDragging ? 'scale' : 'scale, translate',
     pointerEvents: (store.isDragging ? 'none' : 'auto') as 'none' | 'auto',
-    width: `${CARD_WIDTH}rem`,
     translate: `${store.x}px ${store.y}px`,
     transitionDuration: hasMounted ? `${CARD_TRANSITION_DURATION}ms` : '0ms',
     boxShadow:
@@ -61,7 +55,7 @@ const Card = ({ cardId }: { cardId: number }) => {
 const getShallowCardState = (cardId: number) => (state: GameState) => {
   const card = state.cards[cardId]
   const { pressed, mouseX, mouseY } = state.cursorState
-  const { x: xPos, y: yPos, pileType } = getCardPilePosition(card)
+  const { x: xPos, y: yPos, pileType, width } = getCardPilePosition(card)
 
   const activeIndex = state.activeCard?.cardPileIndex ?? 0
   const samePile = state.activeCard?.pileIndex === card.pileIndex
@@ -70,7 +64,7 @@ const getShallowCardState = (cardId: number) => (state: GameState) => {
   const isActive = samePile && activeIndex <= cardIndex
   const isDragging = pressed && isActive
 
-  const yDiff = Math.abs(activeIndex - cardIndex) * (CARD_Y_GAP * CARD_HEIGHT)
+  const yDiff = Math.abs(activeIndex - cardIndex) * (CARD_Y_GAP * width)
 
   const x = isDragging ? mouseX : xPos
   const y = isDragging ? mouseY + yDiff : yPos

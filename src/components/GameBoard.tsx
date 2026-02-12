@@ -1,10 +1,11 @@
 import { useWindowEvent, useForceUpdate } from '../utils'
-import Card from './Card'
 import debounce from 'lodash/debounce'
 import { Header } from './Header'
 import { useGameStore } from '../utils/gameStore'
 import { useShallow } from 'zustand/react/shallow'
-import { CARD_WIDTH, PILE_COUNT, SUIT_COLORS } from '../utils/constants'
+import { PILE_COUNT, SUIT_COLORS } from '../utils/constants'
+import { Pile } from './Pile'
+import Card from './Card'
 
 function App() {
   const state = useGameStore(
@@ -27,27 +28,20 @@ function App() {
       <div id="ui" className="absolute inset-0">
         <Header onReset={() => state.newGame()} />
 
-        <div className="flex flex-col justify-center h-full">
-          <div className="h-[100px] w-full flex gap-6 items-start justify-center">
-            {Array.from({ length: SUIT_COLORS.length }).map((_, pileIndex) => (
-              <div
-                key={`pile-${pileIndex}`}
-                className="pile"
-                data-pileindex={pileIndex + PILE_COUNT}
-                data-type="foundation"
-                style={{ width: `${CARD_WIDTH}rem` }}
+        <div className="flex flex-col justify-center h-full gap-[1vw]">
+          <div className="w-full flex gap-[1vw] items-start justify-center">
+            {Array.from({ length: SUIT_COLORS.length }).map((_, index) => (
+              <Pile
+                key={index}
+                pileIndex={index + PILE_COUNT}
+                pileType="foundation"
               />
             ))}
           </div>
-          <div className="h-[300px] w-full flex gap-6 items-start justify-center">
-            {Array.from({ length: PILE_COUNT }).map((_, pileIndex) => (
-              <div
-                key={`pile-${pileIndex}`}
-                className="pile"
-                data-pileindex={pileIndex}
-                data-type="tableau"
-                style={{ width: `${CARD_WIDTH}rem` }}
-              />
+
+          <div className="min-h-[300px] w-full flex gap-[1vw] items-start justify-center">
+            {Array.from({ length: PILE_COUNT }).map((_, index) => (
+              <Pile key={index} pileIndex={index} pileType="tableau" />
             ))}
           </div>
         </div>

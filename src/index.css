@@ -25,15 +25,25 @@
     overflow: visible;
   }
 
+  .card,
   .pile {
-    @apply rounded-md border-2 border-[#ffffff33] bg-[#ffffff22] aspect-square;
+    width: clamp(30px, 7.5vw, 120px);
+    border-radius: clamp(3px, 0.7vw, 6px);
+  }
+
+  .pile-container {
+    @apply flex items-start justify-center;
+    gap: clamp(4px, 1vw, 20px);
+  }
+
+  .pile {
+    @apply border-2 border-[#ffffff33] bg-[#ffffff22] aspect-square;
   }
 
   .card {
     @apply absolute overflow-hidden pointer-events-auto;
     transition-timing-function: ease-in-out;
     pointer-events: auto;
-    border-radius: 0.3rem;
     border: 0.08rem solid #333;
   }
 }

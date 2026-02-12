@@ -107,23 +107,34 @@ const moveCard = (
     getCardFromPoint(x, y, cards)?.pileIndex ?? getPileFromPoint(x, y)
   const movingCards = getCardsUnderCard(cards, activeCard)
 
-  const targetCard = cards
+  if (pileIndex === -1) return { cards, activeCard: null }
+
+  const cardsInTargetPile = cards
     .filter((c) => c.pileIndex === pileIndex)
     .sort((a, b) => a.cardPileIndex - b.cardPileIndex)
-    .at(-1)
+  const bottomCard = cardsInTargetPile.at(-1)
+  const isEmpty = !bottomCard
 
-  if (
-    targetCard &&
-    !(
-      (isDescending([targetCard, ...movingCards]) ||
-        isAscending([targetCard, ...movingCards])) &&
-      movingCards.every((c) => c.suit === targetCard.suit)
-    )
-  )
-    return {
-      activeCard: null,
-      cards,
-    }
+  const pile = document.querySelector(
+    `.pile[data-pileindex="${pileIndex}"]`,
+  ) as HTMLDivElement | null
+  const pileType = pile?.dataset.piletype || 'tableau'
+
+  const suitsMatch = movingCards.every((c) => c.suit === bottomCard?.suit)
+  let isValid =
+    !bottomCard ||
+    (isAdjacentInValue([bottomCard, ...movingCards]) && suitsMatch)
+
+  if (pileType === 'foundation') {
+    if (isEmpty)
+      // if foundation and its empty, only allow 0s and 9s
+      isValid = movingCards[0].rank === 0 || movingCards[0].rank === 9
+  } else if (pileType === 'cheat') {
+    // if cheat pile, only allow card if pile is empty
+    isValid = isEmpty
+  }
+
+  if (!isValid) return { cards, activeCard: null }
 
   return {
     activeCard: null,
@@ -131,7 +142,7 @@ const moveCard = (
       let cardPileIndex = movingCards.findIndex((c) => c.id === card.id)
       if (cardPileIndex === -1) return card
 
-      if (targetCard) cardPileIndex += targetCard.cardPileIndex + 1
+      if (bottomCard) cardPileIndex += bottomCard.cardPileIndex + 1
 
       return { ...card, pileIndex, cardPileIndex }
     }),
@@ -151,8 +162,11 @@ const getCardFromPoint = (x: number, y: number, cards: CardType[]) => {
 const getPileFromPoint = (x: number, y: number) => {
   const elementUnder = document.elementFromPoint(x, y) as HTMLDivElement
 
-  return +(elementUnder?.dataset.pileindex || '0')
+  return +(elementUnder?.dataset.pileindex || '-1')
 }
+
+const isAdjacentInValue = (cards: CardType[]) =>
+  isDescending(cards) || isAscending(cards)
 
 const isDescending = (cards: CardType[]) =>
   cards.filter((card, i) =>
