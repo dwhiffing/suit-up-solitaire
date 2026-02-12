@@ -167,7 +167,7 @@ const checkAndCascade = (
   setTimeout(() => {
     moveCard(nextCard, targetPileIndex, get, set)
     checkAndCascade(sourcePileIndex, targetPileIndex, get, set)
-  }, CARD_TRANSITION_DURATION)
+  }, CARD_TRANSITION_DURATION / 2)
 }
 
 const getCardFromPoint = (x: number, y: number, cards: CardType[]) => {

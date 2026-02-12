@@ -21,15 +21,17 @@ const Card = ({ cardId }: { cardId: number }) => {
 
   // delay changes to zIndex until after transition completes
   useEffect(() => {
-    const duration = store.isDragging ? 0 : CARD_TRANSITION_DURATION
-    const timeout = setTimeout(() => setZIndex(store.zIndex), duration)
+    const timeout = setTimeout(
+      () => setZIndex(store.zIndex),
+      CARD_TRANSITION_DURATION,
+    )
     return () => clearTimeout(timeout)
   }, [store.isDragging, store.zIndex])
 
   const isFaceUp = true
 
   const style = {
-    zIndex,
+    zIndex: store.isDragging ? 999 : zIndex,
     scale: store.scale,
     transitionProperty: store.isDragging ? 'scale' : 'scale, translate',
     pointerEvents: (store.isDragging ? 'none' : 'auto') as 'none' | 'auto',
