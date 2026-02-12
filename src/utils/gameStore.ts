@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { getCardPilePosition } from '.'
 import { chunk, shuffle } from 'lodash'
-import { CARDS, PILE_COUNT } from './constants'
+import { CARDS, CARD_TRANSITION_DURATION, PILE_COUNT } from './constants'
 
 type MouseParams = { clientX: number; clientY: number }
 
@@ -34,12 +34,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const clickedCard = getCardFromPoint(clientX, clientY, get().cards)
 
     if (activeCard) {
-      set(moveCard(cards, activeCard, clientX, clientY))
+      const targetPileIndex = getPileAtPoint(clientX, clientY, cards)
+      moveCard(activeCard, targetPileIndex, get, set)
     }
 
     if (
       clickedCard &&
-      clickedCard.cardPileIndex === getCardPile(clickedCard, cards).length - 1
+      clickedCard?.cardPileIndex ===
+        getCardPile(clickedCard.pileIndex, cards).length - 1
     ) {
       set({ activeCard: activeCard ? null : clickedCard })
     }
@@ -58,8 +60,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       Math.abs(cursorDownPos.x - clientX) + Math.abs(cursorDownPos.y - clientY)
     const timeDiff = Date.now() - cursorDownAt
 
-    if (posDiff > 5 || timeDiff > 300) {
-      set(moveCard(cards, activeCard, clientX, clientY))
+    if (activeCard && (posDiff > 5 || timeDiff > 300)) {
+      const targetPileIndex = getPileAtPoint(clientX, clientY, cards)
+      moveCard(activeCard, targetPileIndex, get, set)
     }
 
     cursorDownPos = { x: 0, y: 0 }
@@ -92,61 +95,79 @@ function initializeGame(): GameState {
   }
 }
 
-const getCardsUnderCard = (cards: CardType[], card: CardType) =>
-  getCardPile(card, cards).slice(card.cardPileIndex)
+const getPileAtPoint = (x: number, y: number, cards: CardType[]) =>
+  getCardFromPoint(x, y, cards)?.pileIndex ?? getPileFromPoint(x, y)
 
 const moveCard = (
-  cards: CardType[],
   activeCard: CardType | null,
-  x: number,
-  y: number,
+  pileIndex: number,
+  get: () => GameStore,
+  set: (state: Partial<GameStore>) => void,
 ) => {
-  if (!activeCard) return { cards }
+  const cards = get().cards
+  if (!activeCard || pileIndex === -1) return set({ cards, activeCard: null })
 
-  const pileIndex =
-    getCardFromPoint(x, y, cards)?.pileIndex ?? getPileFromPoint(x, y)
-  const movingCards = getCardsUnderCard(cards, activeCard)
+  const cardsInTargetPile = getCardPile(pileIndex, cards)
+  const targetCard = cardsInTargetPile.at(-1) ?? null
+  const sourcePileIndex = activeCard.pileIndex
 
-  if (pileIndex === -1) return { cards, activeCard: null }
-
-  const cardsInTargetPile = cards
-    .filter((c) => c.pileIndex === pileIndex)
-    .sort((a, b) => a.cardPileIndex - b.cardPileIndex)
-  const bottomCard = cardsInTargetPile.at(-1)
-  const isEmpty = !bottomCard
+  // const movingCards = getCardPile(activeCard.pileIndex, cards).slice(activeCard.cardPileIndex)
+  const movingCards = [activeCard]
 
   const pile = document.querySelector(
     `.pile[data-pileindex="${pileIndex}"]`,
   ) as HTMLDivElement | null
   const pileType = pile?.dataset.piletype || 'tableau'
 
-  const suitsMatch = movingCards.every((c) => c.suit === bottomCard?.suit)
+  const suitsMatch = movingCards.every((c) => c.suit === targetCard?.suit)
   let isValid =
-    !bottomCard ||
-    (isAdjacentInValue([bottomCard, ...movingCards]) && suitsMatch)
+    !targetCard ||
+    (isAdjacentInValue([targetCard, ...movingCards]) && suitsMatch)
 
   if (pileType === 'foundation') {
-    if (isEmpty)
+    if (!targetCard)
       // if foundation and its empty, only allow 0s and 9s
       isValid = movingCards[0].rank === 0 || movingCards[0].rank === 9
-  } else if (pileType === 'cheat') {
-    // if cheat pile, only allow card if pile is empty
-    isValid = isEmpty
   }
 
-  if (!isValid) return { cards, activeCard: null }
+  if (!isValid) return set({ cards, activeCard: null })
 
-  return {
+  set({
     activeCard: null,
     cards: cards.map((card) => {
       let cardPileIndex = movingCards.findIndex((c) => c.id === card.id)
       if (cardPileIndex === -1) return card
 
-      if (bottomCard) cardPileIndex += bottomCard.cardPileIndex + 1
+      if (targetCard) cardPileIndex += targetCard.cardPileIndex + 1
 
-      return { ...card, pileIndex, cardPileIndex }
+      return { ...card, pileIndex: pileIndex, cardPileIndex }
     }),
-  }
+  })
+
+  checkAndCascade(sourcePileIndex, pileIndex, get, set)
+}
+
+const checkAndCascade = (
+  sourcePileIndex: number,
+  targetPileIndex: number,
+  get: () => GameStore,
+  set: (state: Partial<GameStore>) => void,
+) => {
+  const { cards } = get()
+  const nextCard = getCardPile(sourcePileIndex, cards).at(-1)
+  const lastCard = getCardPile(targetPileIndex, cards).at(-1)
+
+  if (!nextCard || !lastCard) return
+
+  const suitsMatch = nextCard.suit === lastCard.suit
+  const ranksAdjacent = Math.abs(nextCard.rank - lastCard.rank) === 1
+
+  if (!suitsMatch || !ranksAdjacent) return
+
+  setTimeout(() => {
+    moveCard(nextCard, targetPileIndex, get, set)
+    checkAndCascade(sourcePileIndex, targetPileIndex, get, set)
+  }, CARD_TRANSITION_DURATION)
 }
 
 const getCardFromPoint = (x: number, y: number, cards: CardType[]) => {
@@ -178,7 +199,7 @@ const isAscending = (cards: CardType[]) =>
     cards[i + 1] ? card.rank === cards[i + 1].rank - 1 : true,
   ).length === cards.length
 
-const getCardPile = (card: CardType, cards: CardType[]) => {
-  const pile = cards.filter((c) => c.pileIndex === card.pileIndex)
+const getCardPile = (pileIndex: number, cards: CardType[]) => {
+  const pile = cards.filter((c) => c.pileIndex === pileIndex)
   return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
 }
