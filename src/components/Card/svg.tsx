@@ -3,52 +3,28 @@ import {
   SUIT_COLORS,
   SVG_CARD_WIDTH,
   SVG_CARD_HEIGHT,
+  SUIT_NAMES,
 } from '../../utils/constants'
 
 const _CardFront = ({ suit, rank }: { suit: Suit; rank: Rank }) => {
   const color = SUIT_COLORS[suit]
+  const suitName = SUIT_NAMES[suit]
 
   return (
-    <svg
-      viewBox={`0 0 ${SVG_CARD_WIDTH} ${SVG_CARD_HEIGHT}`}
-      xmlns="http://www.w3.org/2000/svg"
-      className="pointer-events-none w-full h-full select-none"
-    >
-      <rect width={SVG_CARD_WIDTH} height={SVG_CARD_HEIGHT} fill="white" />
+    <div className="card-front" style={{ color }}>
+      <div className={`${suitName} corner-rank tl`}>
+        <span>{rank}</span>
+        <Suit suit={suit} />
+      </div>
+      <div className={`${suitName} corner-rank br`}>
+        <span>{rank}</span>
+        <Suit suit={suit} />
+      </div>
 
-      <text
-        x="6"
-        y="18"
-        fontSize="18"
-        fontWeight="bold"
-        fill={color}
-        fontFamily="Arial, sans-serif"
-      >
-        {rank}
-      </text>
-
-      <circle cx="25" cy="12" r={5} fill={color} />
-
-      <circle
-        cx={SVG_CARD_WIDTH / 2}
-        cy={SVG_CARD_HEIGHT / 2}
-        r={SVG_CARD_WIDTH / 4}
-        fill={color}
-      />
-
-      <text
-        x={SVG_CARD_WIDTH / 2}
-        y={SVG_CARD_HEIGHT / 2}
-        fontSize="24"
-        fontWeight="bold"
-        fill="white"
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontFamily="Arial, sans-serif"
-      >
-        {rank}
-      </text>
-    </svg>
+      <div className="center-suit">
+        <Suit suit={suit} />
+      </div>
+    </div>
   )
 }
 
@@ -61,5 +37,103 @@ export const CardBack = () => (
     className="pointer-events-none w-full h-full select-none"
   >
     <rect width={SVG_CARD_WIDTH} height={SVG_CARD_HEIGHT} fill="#34495e" />
+  </svg>
+)
+
+const Suit = ({ suit }: { suit: Suit }) => {
+  if (suit === 0) return <HeartSVG />
+  if (suit === 1) return <SpadeSVG />
+  if (suit === 2) return <ClubSVG />
+  if (suit === 3) return <DiamondSVG />
+  if (suit === 4) return <MoonSVG />
+  if (suit === 5) return <StarSVG />
+  if (suit === 6) return <WaterSVG />
+  if (suit === 7) return <ShieldSVG />
+  return null
+}
+
+const ClubSVG = () => (
+  <svg
+    viewBox="0 0 256 259"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 1.05 }}
+  >
+    <path d="M256 152.048C256.003 166.146 251.039 179.797 241.973 190.619C232.907 201.442 220.315 208.748 206.396 211.263C192.476 213.778 178.112 211.342 165.811 204.38C153.509 197.418 144.052 186.373 139.088 173.171C139.042 212.762 141.591 239.104 179.29 259H76.6497C114.349 239.11 116.898 212.773 116.851 173.171C112.704 184.178 105.409 193.733 95.8706 200.652C86.3318 207.572 74.9669 211.554 63.1814 212.105C51.3959 212.656 39.7067 209.753 29.5594 203.754C19.4122 197.755 11.252 188.923 6.08791 178.352C0.92386 167.78 -1.0175 155.932 0.503915 144.272C2.02533 132.612 6.94279 121.653 14.6482 112.749C22.3535 103.845 32.5088 97.3868 43.8582 94.1735C55.2075 90.9601 67.253 91.1325 78.5051 94.6691C72.1719 85.6524 68.4418 75.0773 67.7208 64.0946C66.9998 53.112 69.3155 42.1427 74.4159 32.3806C79.5163 22.6184 87.206 14.4375 96.6481 8.72823C106.09 3.01894 116.923 0 127.967 0C139.011 0 149.844 3.01894 159.286 8.72823C168.728 14.4375 176.418 22.6184 181.518 32.3806C186.618 42.1427 188.934 53.112 188.213 64.0946C187.492 75.0773 183.762 85.6524 177.429 94.6691C186.475 91.826 196.066 91.146 205.426 92.6842C214.785 94.2225 223.649 97.9357 231.3 103.523C238.951 109.111 245.174 116.415 249.466 124.846C253.757 133.276 255.995 142.595 256 152.048Z" />
+  </svg>
+)
+
+const DiamondSVG = () => (
+  <svg
+    viewBox="0 0 232 298"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 0.9 }}
+  >
+    <path d="M232 149C186.461 121 141.403 64.8884 116 0C90.597 64.8884 45.546 121 0 149C45.5394 177 90.597 233.112 116 298C141.403 233.112 186.454 177 232 149Z" />
+  </svg>
+)
+
+const HeartSVG = () => (
+  <svg
+    viewBox="0 0 262 263"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 0.95 }}
+  >
+    <path d="M262 73.2073C262 167.533 131 263 131 263C131 263 0 167.533 0 73.2073C0 19.7322 41.2599 0.00585017 62.9559 0.00585017C108.317 0.00585017 131 38.4523 131 38.4523C131 38.4523 153.683 0 199.044 0C220.74 0.00585003 262 19.7263 262 73.2073Z" />
+  </svg>
+)
+
+const MoonSVG = () => (
+  <svg
+    viewBox="0 0 256 256"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 1 }}
+  >
+    <path d="M249.575 121.786C247.646 121.067 245.542 120.967 243.554 121.5C241.566 122.032 239.793 123.171 238.48 124.758C231.085 133.835 221.764 141.149 211.194 146.167C200.624 151.185 189.071 153.782 177.374 153.769C133.811 153.769 98.3998 118.275 98.3998 74.6571C98.3672 63.8642 100.563 53.1812 104.848 43.2787C109.134 33.3762 115.418 24.4682 123.304 17.114C124.802 15.6942 125.82 13.8423 126.218 11.8158C126.615 9.78942 126.373 7.68923 125.523 5.80739C124.676 3.92429 123.259 2.35536 121.474 1.3221C119.688 0.288853 117.623 -0.15652 115.572 0.0488665C83.8743 3.03748 54.4396 17.7941 33.0537 41.4179C11.6678 65.0416 -0.122377 95.8237 0.000957946 127.713C0.000957946 198.448 57.4584 256 128.078 256C197.866 256 254.063 201.227 255.996 131.299C256.054 129.24 255.466 127.214 254.314 125.507C253.162 123.801 251.504 122.499 249.575 121.786Z" />
+  </svg>
+)
+
+const ShieldSVG = () => (
+  <svg
+    viewBox="0 0 216 266"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 0.8 }}
+  >
+    <path d="M108 0C126 13.3 180 39.9 216 39.9V93.1C216 146.3 162 226.1 108 266C54 226.1 0 146.3 0 93.1V39.9C36 39.9 90 13.3 108 0Z" />
+  </svg>
+)
+
+const SpadeSVG = () => (
+  <svg
+    viewBox="0 0 234 260"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 1 }}
+  >
+    <path d="M234 159.903C234 196.123 202.864 212.716 181.334 212.727C157.324 212.727 139.185 201.82 128.385 192.914C129.809 222.38 136.763 243.431 167.968 260H66.0318C97.2372 243.431 104.191 222.38 105.615 192.914C94.8155 201.814 76.67 212.739 52.6663 212.727C31.165 212.727 0 196.123 0 159.903C0 93.7011 46.4967 111.716 116.997 0C187.503 111.716 234 93.7069 234 159.903Z" />
+  </svg>
+)
+const StarSVG = () => (
+  <svg
+    viewBox="0 0 256 244"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 1.05, translate: '0 -0.05vw' }}
+  >
+    <path d="M128 0.00111872C115.427 0.00111872 90.7852 61.7323 80.6138 69.121C70.4412 76.5086 4.096 80.86 0.210597 92.8139C-3.67481 104.767 47.4412 147.271 51.3266 159.225C55.212 171.179 38.8496 235.6 49.0222 242.987C59.1948 250.375 115.427 214.912 128 214.912C140.573 214.912 196.806 250.376 206.978 242.987C217.15 235.6 200.788 171.179 204.673 159.225C208.559 147.271 259.675 104.767 255.789 92.8133C251.904 80.8589 185.559 76.508 175.387 69.1199C165.215 61.7323 140.574 0 128.001 0L128 0.00111872Z" />
+  </svg>
+)
+const WaterSVG = () => (
+  <svg
+    viewBox="0 0 194 266"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ scale: 0.7 }}
+  >
+    <path d="M191.141 152.375C206.268 213.255 159.399 266 97.0271 266C34.6548 266 -12.3989 213.998 2.91336 152.375C12.3247 114.5 39.0969 91.5 97.0271 0C157.378 93 181.729 114.5 191.141 152.375Z" />
   </svg>
 )

@@ -8,6 +8,14 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    --base-min: 30px;
+    --base-vw: 8vw;
+    --base-max: 120px;
+    --base-size: clamp(var(--base-min), var(--base-vw), var(--base-max));
+
+    --base-padding: calc(var(--base-size) * 0.04);
+    --base-gap: calc(var(--base-size) * 0.1);
   }
 
   body {
@@ -27,24 +35,66 @@
 
   .card,
   .pile {
-    width: clamp(30px, 7.5vw, 120px);
-    border-radius: clamp(3px, 0.7vw, 6px);
+    width: var(--base-size);
+    aspect-ratio: 0.75;
+    border-radius: calc(var(--base-size) * 0.08);
   }
 
-  .pile-container {
-    @apply flex items-start justify-center;
-    gap: clamp(4px, 1vw, 20px);
+  .card .card-front {
+    @apply flex flex-col h-full w-full relative justify-center items-center;
+  }
+
+  .card .corner-rank {
+    @apply font-bold leading-[1] absolute flex items-center;
+    font-size: calc(var(--base-size) * 0.175);
+
+    svg {
+      width: calc(var(--base-size) * 0.12);
+    }
+
+    &.tl {
+      top: var(--base-padding);
+      left: var(--base-padding);
+    }
+    &.br {
+      bottom: var(--base-padding);
+      right: var(--base-padding);
+      transform: rotate(180deg);
+    }
+
+    gap: calc(var(--base-size) * 0.03);
+    &.water {
+      gap: calc(var(--base-size) * 0.01);
+    }
+    &.shield,
+    &.diamond {
+      gap: calc(var(--base-size) * 0.02);
+    }
+  }
+
+  .card .center-suit {
+    width: calc(var(--base-size) * 0.3);
+  }
+
+  .gap-board {
+    gap: calc(var(--base-gap));
   }
 
   .pile {
-    @apply border-2 border-[#ffffff33] bg-[#ffffff22] aspect-square;
+    @apply border-2 border-[#ffffff33] bg-[#ffffff22] relative pointer-events-none;
   }
 
   .card {
-    @apply absolute overflow-hidden pointer-events-auto;
-    transition-timing-function: ease-in-out;
-    transition-duration: 200ms;
-    pointer-events: auto;
+    @apply absolute bg-white pointer-events-none;
+    transition-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
     border: 0.08rem solid #333;
+  }
+
+  .card.inactive::before,
+  .pile::before {
+    content: '';
+    position: absolute;
+    pointer-events: auto;
+    inset: calc(var(--base-gap) * -1);
   }
 }

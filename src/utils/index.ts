@@ -20,6 +20,7 @@ export const getCardPilePosition = (card: CardType) => {
   ) as HTMLDivElement | null
   const pilePos = pileEl?.getBoundingClientRect()
   const width = pileEl?.offsetWidth ?? 0
+  const height = pileEl?.offsetHeight ?? 0
 
   let offsetY = 0
   const pileType = pileEl?.dataset.piletype ?? 'tableau'
@@ -33,5 +34,6 @@ export const getCardPilePosition = (card: CardType) => {
     y: (pilePos?.y ?? 0) + offsetY,
     pileType,
     width,
+    height,
   }
 }

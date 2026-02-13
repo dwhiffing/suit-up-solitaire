@@ -28,8 +28,8 @@ function App() {
       <div id="ui" className="absolute inset-0">
         <Header onReset={() => state.newGame()} />
 
-        <div className="flex flex-col justify-center h-full gap-[1vw]">
-          <div className="w-full flex gap-[1vw] items-start justify-center">
+        <div className="flex flex-col justify-center h-full gap-board">
+          <div className="w-full flex gap-board items-start justify-center">
             {Array.from({ length: SUIT_COLORS.length }).map((_, index) => (
               <Pile
                 key={index}
@@ -39,7 +39,7 @@ function App() {
             ))}
           </div>
 
-          <div className="min-h-[300px] w-full flex gap-[1vw] items-start justify-center">
+          <div className="min-h-[300px] w-full flex gap-board items-start justify-center">
             {Array.from({ length: PILE_COUNT }).map((_, index) => (
               <Pile key={index} pileIndex={index} pileType="tableau" />
             ))}

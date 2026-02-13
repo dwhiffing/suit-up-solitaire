@@ -61,7 +61,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const timeDiff = Date.now() - cursorDownAt
 
     if (activeCard && (posDiff > 5 || timeDiff > 300)) {
-      const targetPileIndex = getPileAtPoint(clientX, clientY, cards)
+      const { width, height } = getCardPilePosition(activeCard)
+      const _x = width / 2 - cursorDelta.x
+      const _y = height / 2 - cursorDelta.y - height / 4
+      const targetPileIndex = getPileAtPoint(clientX + _x, clientY + _y, cards)
       moveCard(activeCard, targetPileIndex, get, set)
     }
 
@@ -169,7 +172,7 @@ const checkAndCascade = (
     setTimeout(() => {
       moveCard(nextCard, targetPileIndex, get, set)
       checkAndCascade(sourcePileIndex, targetPileIndex, get, set)
-    }, CARD_TRANSITION_DURATION / 2)
+    }, CARD_TRANSITION_DURATION * 0.8)
   }, 0)
 }
 
