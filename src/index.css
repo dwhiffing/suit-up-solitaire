@@ -36,12 +36,29 @@
   .card,
   .pile {
     width: var(--base-size);
-    aspect-ratio: 0.75;
-    border-radius: calc(var(--base-size) * 0.08);
+    aspect-ratio: 0.715;
+  }
+
+  .card,
+  .pile,
+  .card-front,
+  .card-back {
+    border-radius: calc(var(--base-size) * 0.05);
   }
 
   .card .card-front {
-    @apply flex flex-col h-full w-full relative justify-center items-center;
+    @apply flex flex-col h-full w-full relative justify-center items-center bg-[#ebf0ee];
+    border: 0.05vw solid #0004;
+  }
+
+  .card .card-back {
+    @apply absolute inset-0 z-[100000] bg-[#ebf0ee] opacity-0 transition-opacity duration-500;
+    padding: calc(var(--base-padding) * 0.8);
+    color: #e74c3c;
+  }
+
+  .card.face-down .card-back {
+    @apply opacity-100;
   }
 
   .card .corner-rank {
@@ -81,13 +98,12 @@
   }
 
   .pile {
-    @apply border-2 border-[#ffffff33] bg-[#ffffff22] relative pointer-events-none;
+    @apply border-[0.15vw] border-[#ffffff33] bg-[#ffffff22] relative pointer-events-none;
   }
 
   .card {
-    @apply absolute bg-white pointer-events-none;
-    transition-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
-    border: 0.08rem solid #333;
+    @apply absolute pointer-events-none;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
 
   .card.inactive::before,
@@ -96,5 +112,9 @@
     position: absolute;
     pointer-events: auto;
     inset: calc(var(--base-gap) * -1);
+  }
+  .pile.tableau::before {
+    inset: calc(var(--base-gap) * -1) calc(var(--base-gap) * -1)
+      calc(var(--base-gap) * -20);
   }
 }

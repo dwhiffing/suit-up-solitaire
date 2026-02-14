@@ -7,7 +7,7 @@ export const Pile = ({
 }) => (
   <div
     key={`pile-${pileIndex}`}
-    className="pile"
+    className={`pile ${pileType}`}
     data-pileindex={pileIndex}
     data-piletype={pileType}
   />

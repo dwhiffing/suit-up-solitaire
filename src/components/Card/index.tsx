@@ -2,7 +2,7 @@ import { useEffect, useState, memo } from 'react'
 import debounce from 'lodash/debounce'
 import { useShallow } from 'zustand/react/shallow'
 
-import { CardBack, CardFront } from './svg'
+import { CardBackSVG, CardFront } from './svg'
 import {
   getCardPilePosition,
   useWindowEvent,
@@ -16,7 +16,7 @@ const Card = ({ cardId }: { cardId: number }) => {
   const [isActive, setIsActive] = useState(false)
   const [zIndex, setZIndex] = useState(0)
   const [hasMounted, setHasMounted] = useState(false)
-  useWindowEvent('resize', debounce(useForceUpdate(), 500))
+  useWindowEvent('resize', debounce(useForceUpdate(), 100))
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setHasMounted(true), [])
 
@@ -25,24 +25,27 @@ const Card = ({ cardId }: { cardId: number }) => {
     const timeout = setTimeout(
       () => {
         setIsActive(store.isActive)
-        setZIndex(store.zIndex)
+        setZIndex(store.cardPileIndex)
       },
       !isActive && store.isActive ? 0 : CARD_TRANSITION_DURATION,
     )
     return () => clearTimeout(timeout)
-  }, [isActive, store.zIndex, store.isActive])
-
-  const isFaceUp = true
+  }, [isActive, store.cardPileIndex, store.isActive])
 
   const style = {
     zIndex: zIndex + (isActive ? 1000 : 0),
     scale: store.scale,
-    transitionProperty:
-      !hasMounted || store.isActive ? 'scale' : 'scale, translate',
+    transitionProperty: !hasMounted
+      ? ''
+      : store.isActive
+        ? 'scale'
+        : 'scale, translate',
     transitionDuration: CARD_TRANSITION_DURATION + 'ms',
     translate: `${store.x}px ${store.y}px`,
     boxShadow:
-      store.pileType === 'tableau' ? '0 0 5px rgba(0, 0, 0, 0.25)' : 'none',
+      !store.isFaceDown && store.pileType === 'tableau'
+        ? '0 0 5px rgba(0, 0, 0, 0.25)'
+        : 'none',
   }
 
   if (!hasMounted) return null
@@ -50,36 +53,49 @@ const Card = ({ cardId }: { cardId: number }) => {
   return (
     <div
       data-id={cardId}
-      className={`card ${isActive ? 'active' : 'inactive'}`}
+      className={`card ${store.isFaceDown ? 'face-down' : ''} ${isActive ? 'active' : 'inactive'}`}
       style={style}
     >
-      {isFaceUp ? (
-        <CardFront suit={store.card.suit} rank={store.card.rank} />
-      ) : (
-        <CardBack />
-      )}
+      <CardFront suit={store.suit} rank={store.rank} />
+      <div className="card-back">
+        <CardBackSVG />
+      </div>
     </div>
   )
 }
 
 const getShallowCardState = (cardId: number) => (state: GameState) => {
   const card = state.cards[cardId]
+  const { cardPileIndex, suit, rank } = card
   const { mouseX, mouseY, pressed } = state.cursorState
   const { x: xPos, y: yPos, pileType, width } = getCardPilePosition(card)
 
   const activeIndex = state.activeCard?.cardPileIndex ?? 0
-  const cardIndex = card.cardPileIndex
 
+  const yDiff =
+    Math.abs(activeIndex - card.cardPileIndex) * (CARD_Y_GAP * width)
   const isActive = cardId === state.activeCard?.id
+  const isFaceDown = cardId > state.shuffleIndex
+  const isDragging = isActive && pressed
 
-  const yDiff = Math.abs(activeIndex - cardIndex) * (CARD_Y_GAP * width)
+  const deckX = window.innerWidth / 2 - width / 2
+  const deckY = window.innerHeight / 4
 
-  const x = isActive && pressed ? mouseX : xPos
-  const y = isActive && pressed ? mouseY + yDiff : yPos
-  const zIndex = cardIndex
+  const x = isFaceDown ? deckX : isDragging ? mouseX : xPos
+  const y = isFaceDown ? deckY : isDragging ? mouseY + yDiff : yPos
   const scale = isActive ? 1.15 : 1
 
-  return { card, x, y, zIndex, scale, isActive, pileType }
+  return {
+    x,
+    y,
+    scale,
+    isActive,
+    pileType,
+    isFaceDown,
+    cardPileIndex,
+    suit,
+    rank,
+  }
 }
 
 export default memo(Card)
