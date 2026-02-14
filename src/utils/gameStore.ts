@@ -10,10 +10,12 @@ export interface GameState {
   activeCard: CardType | null
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
   shuffleIndex: number
+  suitCount: number
 }
 
 interface GameStore extends GameState {
-  newGame: () => void
+  newGame: (suitCount: number) => void
+  setSuitCount: (count: number) => void
   onMouseDown: (params: MouseParams) => void
   onMouseUp: (params: MouseParams) => void
   onMouseMove: (params: MouseParams) => void
@@ -46,14 +48,20 @@ const animateShuffle = (
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
-  const newGame = () => {
-    set(initializeGame())
+  const newGame = (suitCount: number) => {
+    set(initializeGame(suitCount))
     setTimeout(() => animateShuffle(set, get), 500)
   }
-  newGame()
+  const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
+  newGame(suitCount)
   return {
-    ...initializeGame(),
+    ...initializeGame(suitCount),
     newGame,
+    setSuitCount: (suitCount: number) => {
+      localStorage.setItem('suitCount', suitCount.toString())
+      set({ suitCount })
+      newGame(suitCount)
+    },
     onMouseDown: ({ clientX, clientY }: MouseParams) => {
       const { activeCard, cards } = get()
       const clickedCard = getCardFromPoint(clientX, clientY, get().cards)
@@ -117,8 +125,13 @@ export const useGameStore = create<GameStore>((set, get) => {
   }
 })
 
-function initializeGame(): GameState {
-  const cards = chunk(shuffle(CARDS), Math.ceil(CARDS.length / PILE_COUNT))
+function initializeGame(suitCount: number): GameState {
+  const selectedCards = CARDS.filter((card) => card.suit < suitCount)
+
+  const cards = chunk(
+    shuffle(selectedCards),
+    Math.ceil(selectedCards.length / PILE_COUNT),
+  )
     .flatMap((pile, pileIndex) =>
       pile.map((n, i) => ({
         ...n,
@@ -134,6 +147,7 @@ function initializeGame(): GameState {
     activeCard: null,
     cursorState: { mouseX: 0, mouseY: 0, pressed: false },
     shuffleIndex: -1,
+    suitCount,
   }
 }
 

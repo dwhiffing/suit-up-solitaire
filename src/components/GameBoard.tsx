@@ -3,7 +3,7 @@ import debounce from 'lodash/debounce'
 import { Header } from './Header'
 import { useGameStore } from '../utils/gameStore'
 import { useShallow } from 'zustand/react/shallow'
-import { PILE_COUNT, SUIT_COLORS } from '../utils/constants'
+import { PILE_COUNT } from '../utils/constants'
 import { Pile } from './Pile'
 import Card from './Card'
 
@@ -11,6 +11,8 @@ function App() {
   const state = useGameStore(
     useShallow((state) => ({
       cardCount: state.cards.length,
+      suitCount: state.suitCount,
+      setSuitCount: state.setSuitCount,
       newGame: state.newGame,
       onMouseUp: state.onMouseUp,
       onMouseDown: state.onMouseDown,
@@ -26,11 +28,15 @@ function App() {
   return (
     <>
       <div id="ui" className="absolute inset-0">
-        <Header onReset={() => state.newGame()} />
+        <Header
+          onReset={() => state.newGame(state.suitCount)}
+          suitCount={state.suitCount}
+          onSuitCountChange={state.setSuitCount}
+        />
 
         <div className="flex flex-col justify-center h-full gap-board absolute inset-0">
           <div className="w-full flex gap-board items-start justify-center">
-            {Array.from({ length: SUIT_COLORS.length }).map((_, index) => (
+            {Array.from({ length: state.suitCount }).map((_, index) => (
               <Pile
                 key={index}
                 pileIndex={index + PILE_COUNT}
