@@ -29,6 +29,7 @@ let cursorDownPos = { x: 0, y: 0 }
 // so that when you drag, the card anchors to the mouse correctly
 let cursorDelta = { x: 0, y: 0 }
 let shuffleTimeout: number | null = null
+let lastDoubleClickAt = 0
 
 const animateShuffle = (
   set: (state: Partial<GameStore>) => void,
@@ -70,9 +71,14 @@ export const useGameStore = create<GameStore>((set, get) => {
         clickedCard?.id === activeCard?.id && Date.now() - cursorDownAt < 500
 
       if (isDoubleClick && clickedCard) {
-        const foundationPileIndex = findValidFoundationPile(clickedCard, cards)
-        if (foundationPileIndex !== null) {
-          moveCard(clickedCard, foundationPileIndex, get, set)
+        const pileIndex = findValidFoundationPile(
+          clickedCard,
+          cards,
+          get().suitCount,
+        )
+        if (pileIndex !== null) {
+          lastDoubleClickAt = Date.now()
+          moveCard(clickedCard, pileIndex, get, set)
           return
         }
       }
@@ -85,7 +91,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (
         clickedCard &&
         clickedCard?.cardPileIndex ===
-          getCardPile(clickedCard.pileIndex, cards).length - 1
+          getCardPile(clickedCard.pileIndex, cards).length - 1 &&
+        !isPileComplete(clickedCard.pileIndex, cards)
       ) {
         set({ activeCard: activeCard ? null : clickedCard })
       }
@@ -105,7 +112,11 @@ export const useGameStore = create<GameStore>((set, get) => {
         Math.abs(cursorDownPos.y - clientY)
       const timeDiff = Date.now() - cursorDownAt
 
-      if (activeCard && (posDiff > 5 || timeDiff > 300)) {
+      if (
+        activeCard &&
+        (posDiff > 5 || timeDiff > 300) &&
+        Date.now() - lastDoubleClickAt > 300
+      ) {
         const { width, height } = getCardPilePosition(activeCard)
         const x = clientX + (width / 2 - cursorDelta.x)
         const y = clientY + (height / 2 - cursorDelta.y)
@@ -263,20 +274,15 @@ const getCardPile = (pileIndex: number, cards: CardType[]) => {
   return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
 }
 
+export const isPileComplete = (pileIndex: number, cards: CardType[]): boolean =>
+  getCardPile(pileIndex, cards).length === 10 && pileIndex > 10
+
 const findValidFoundationPile = (
   card: CardType,
   cards: CardType[],
+  suitCount: number,
 ): number | null => {
-  if (card.rank === 0 || card.rank === 9) {
-    for (let i = 0; i < 8; i++) {
-      if (getCardPile(PILE_COUNT + i, cards).length === 0) {
-        return PILE_COUNT + i
-      }
-    }
-    return null
-  }
-
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < suitCount; i++) {
     const foundationPileIndex = PILE_COUNT + i
     const foundationCards = getCardPile(foundationPileIndex, cards)
     const topCard = foundationCards.at(-1)
@@ -289,6 +295,15 @@ const findValidFoundationPile = (
     if (suitsMatch && ranksAdjacent) {
       return foundationPileIndex
     }
+  }
+
+  if (card.rank === 0 || card.rank === 9) {
+    for (let i = 0; i < suitCount; i++) {
+      if (getCardPile(PILE_COUNT + i, cards).length === 0) {
+        return PILE_COUNT + i
+      }
+    }
+    return null
   }
 
   return null

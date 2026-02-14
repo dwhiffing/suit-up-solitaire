@@ -8,8 +8,16 @@ import {
   useWindowEvent,
   useForceUpdate,
 } from '../../utils'
-import { useGameStore, type GameState } from '../../utils/gameStore'
-import { CARD_Y_GAP, CARD_TRANSITION_DURATION } from '../../utils/constants'
+import {
+  useGameStore,
+  type GameState,
+  isPileComplete,
+} from '../../utils/gameStore'
+import {
+  CARD_Y_GAP,
+  CARD_TRANSITION_DURATION,
+  PILE_COUNT,
+} from '../../utils/constants'
 
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
@@ -75,14 +83,17 @@ const getShallowCardState = (cardId: number) => (state: GameState) => {
   const yDiff =
     Math.abs(activeIndex - card.cardPileIndex) * (CARD_Y_GAP * width)
   const isActive = cardId === state.activeCard?.id
-  const isFaceDown = cardId > state.shuffleIndex
+  const isShuffling = cardId > state.shuffleIndex
+  const isInCompletedPile =
+    card.pileIndex >= PILE_COUNT && isPileComplete(card.pileIndex, state.cards)
+  const isFaceDown = isShuffling || isInCompletedPile
   const isDragging = isActive && pressed
 
   const deckX = window.innerWidth / 2 - width / 2
   const deckY = window.innerHeight / 4
 
-  const x = isFaceDown ? deckX : isDragging ? mouseX : xPos
-  const y = isFaceDown ? deckY : isDragging ? mouseY + yDiff : yPos
+  const x = isShuffling ? deckX : isDragging ? mouseX : xPos
+  const y = isShuffling ? deckY : isDragging ? mouseY + yDiff : yPos
   const scale = isActive ? 1.15 : 1
 
   return {
