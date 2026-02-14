@@ -8,11 +8,15 @@ const _CardFront = ({ suit, rank }: { suit: Suit; rank: Rank }) => {
   return (
     <div className="card-front" style={{ color }}>
       <div className={`${suitName} corner-rank tl`}>
-        <span>{rank}</span>
+        <div className="rank">
+          <span>{rank}</span>
+        </div>
         <Suit suit={suit} />
       </div>
       <div className={`${suitName} corner-rank br`}>
-        <span>{rank}</span>
+        <div className="rank">
+          <span>{rank}</span>
+        </div>
         <Suit suit={suit} />
       </div>
 
@@ -25,7 +29,7 @@ const _CardFront = ({ suit, rank }: { suit: Suit; rank: Rank }) => {
 
 export const CardFront = React.memo(_CardFront)
 
-const Suit = ({ suit }: { suit: Suit }) => {
+const Suit = React.memo(({ suit }: { suit: Suit }) => {
   if (suit === 0) return <HeartSVG />
   if (suit === 1) return <SpadeSVG />
   if (suit === 2) return <ClubSVG />
@@ -35,7 +39,7 @@ const Suit = ({ suit }: { suit: Suit }) => {
   if (suit === 6) return <WaterSVG />
   if (suit === 7) return <ShieldSVG />
   return null
-}
+})
 
 const ClubSVG = () => (
   <svg
@@ -86,7 +90,7 @@ const ShieldSVG = () => (
     viewBox="0 0 216 266"
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ scale: 0.8 }}
+    style={{ scale: 0.85 }}
   >
     <path d="M108 0C126 13.3 180 39.9 216 39.9V93.1C216 146.3 162 226.1 108 266C54 226.1 0 146.3 0 93.1V39.9C36 39.9 90 13.3 108 0Z" />
   </svg>
@@ -117,7 +121,7 @@ const WaterSVG = () => (
     viewBox="0 0 194 266"
     fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ scale: 0.7 }}
+    style={{ scale: 0.75 }}
   >
     <path d="M191.141 152.375C206.268 213.255 159.399 266 97.0271 266C34.6548 266 -12.3989 213.998 2.91336 152.375C12.3247 114.5 39.0969 91.5 97.0271 0C157.378 93 181.729 114.5 191.141 152.375Z" />
   </svg>

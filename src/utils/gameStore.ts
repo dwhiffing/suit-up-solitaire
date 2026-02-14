@@ -38,7 +38,7 @@ const animateShuffle = (
     const { shuffleIndex, cards } = get()
     if (shuffleIndex < cards.length) {
       set({ shuffleIndex: shuffleIndex + 1 })
-      shuffleTimeout = setTimeout(increment, 20)
+      shuffleTimeout = setTimeout(increment, 10)
     }
   }
 
@@ -48,7 +48,7 @@ const animateShuffle = (
 export const useGameStore = create<GameStore>((set, get) => {
   const newGame = () => {
     set(initializeGame())
-    setTimeout(() => animateShuffle(set, get), 200)
+    setTimeout(() => animateShuffle(set, get), 500)
   }
   newGame()
   return {

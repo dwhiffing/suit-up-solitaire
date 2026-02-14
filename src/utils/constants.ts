@@ -1,5 +1,5 @@
 export const PILE_COUNT = 11
-export const CARD_Y_GAP = 0.25
+export const CARD_Y_GAP = 0.3
 export const CARD_TRANSITION_DURATION = 350
 export const SUIT_COLORS: string[] = [
   '#e74c3c',
@@ -7,7 +7,7 @@ export const SUIT_COLORS: string[] = [
   '#27ae60',
   '#3d9bcb',
   '#9a54ae',
-  '#e09049',
+  '#e28d26',
   '#4761ad',
   '#8a7b63',
 ]

@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: 'Roboto';
+    src: url('/Roboto.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+  }
+
   :root {
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -21,7 +28,7 @@
   body {
     @apply min-h-screen;
     background-color: #45a173;
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -63,10 +70,16 @@
 
   .card .corner-rank {
     @apply font-bold leading-[1] absolute flex items-center;
-    font-size: calc(var(--base-size) * 0.175);
+    font-size: calc(var(--base-size) * 0.2);
+    gap: calc(var(--base-size) * 0.03);
+
+    .rank {
+      width: calc(var(--base-size) * 0.12);
+      @apply flex justify-center items-center;
+    }
 
     svg {
-      width: calc(var(--base-size) * 0.12);
+      width: calc(var(--base-size) * 0.14);
     }
 
     &.tl {
@@ -78,19 +91,10 @@
       right: var(--base-padding);
       transform: rotate(180deg);
     }
-
-    gap: calc(var(--base-size) * 0.03);
-    &.water {
-      gap: calc(var(--base-size) * 0.01);
-    }
-    &.shield,
-    &.diamond {
-      gap: calc(var(--base-size) * 0.02);
-    }
   }
 
   .card .center-suit {
-    width: calc(var(--base-size) * 0.3);
+    width: calc(var(--base-size) * 0.35);
   }
 
   .gap-board {
