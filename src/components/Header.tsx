@@ -7,9 +7,9 @@ export function Header({ onReset }: { onReset: () => void }) {
 
       <div
         onClick={onReset}
-        className="flex items-center gap-1 cursor-pointer select-none h-10 aspect-square justify-center text-4xl"
+        className="flex items-center gap-1 cursor-pointer select-none h-10 justify-center text-xl"
       >
-        <span>+</span>
+        <span>New Game</span>
       </div>
     </div>
   )

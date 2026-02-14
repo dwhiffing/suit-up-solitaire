@@ -58,6 +58,17 @@ export const useGameStore = create<GameStore>((set, get) => {
       const { activeCard, cards } = get()
       const clickedCard = getCardFromPoint(clientX, clientY, get().cards)
 
+      const isDoubleClick =
+        clickedCard?.id === activeCard?.id && Date.now() - cursorDownAt < 500
+
+      if (isDoubleClick && clickedCard) {
+        const foundationPileIndex = findValidFoundationPile(clickedCard, cards)
+        if (foundationPileIndex !== null) {
+          moveCard(clickedCard, foundationPileIndex, get, set)
+          return
+        }
+      }
+
       if (activeCard) {
         const targetPileIndex = getPileAtPoint(clientX, clientY, cards)
         moveCard(activeCard, targetPileIndex, get, set)
@@ -236,4 +247,35 @@ const isAscending = (cards: CardType[]) =>
 const getCardPile = (pileIndex: number, cards: CardType[]) => {
   const pile = cards.filter((c) => c.pileIndex === pileIndex)
   return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
+}
+
+const findValidFoundationPile = (
+  card: CardType,
+  cards: CardType[],
+): number | null => {
+  if (card.rank === 0 || card.rank === 9) {
+    for (let i = 0; i < 8; i++) {
+      if (getCardPile(PILE_COUNT + i, cards).length === 0) {
+        return PILE_COUNT + i
+      }
+    }
+    return null
+  }
+
+  for (let i = 0; i < 8; i++) {
+    const foundationPileIndex = PILE_COUNT + i
+    const foundationCards = getCardPile(foundationPileIndex, cards)
+    const topCard = foundationCards.at(-1)
+
+    if (!topCard) continue
+
+    const suitsMatch = card.suit === topCard.suit
+    const ranksAdjacent = isAdjacentInValue([topCard, card])
+
+    if (suitsMatch && ranksAdjacent) {
+      return foundationPileIndex
+    }
+  }
+
+  return null
 }

@@ -53,7 +53,7 @@ const Card = ({ cardId }: { cardId: number }) => {
   return (
     <div
       data-id={cardId}
-      className={`card ${store.isFaceDown ? 'face-down' : ''} ${isActive ? 'active' : 'inactive'}`}
+      className={`card ${store.isFaceDown ? 'face-down' : ''} ${store.isDragging ? 'active' : 'inactive'}`}
       style={style}
     >
       <CardFront suit={store.suit} rank={store.rank} />
@@ -95,6 +95,7 @@ const getShallowCardState = (cardId: number) => (state: GameState) => {
     cardPileIndex,
     suit,
     rank,
+    isDragging,
   }
 }
 
