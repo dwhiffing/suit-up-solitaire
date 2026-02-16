@@ -19,6 +19,7 @@ interface GameStore extends GameState {
   onMouseDown: (params: MouseParams) => void
   onMouseUp: (params: MouseParams) => void
   onMouseMove: (params: MouseParams) => void
+  autoCompleteGame: () => void
 }
 
 // tracks the initial cursor position when dragging starts
@@ -62,6 +63,16 @@ export const useGameStore = create<GameStore>((set, get) => {
       localStorage.setItem('suitCount', suitCount.toString())
       set({ suitCount })
       newGame(suitCount)
+    },
+    autoCompleteGame: () => {
+      set({
+        cards: get().cards.map((card) => ({
+          ...card,
+          pileIndex:
+            card.suit === 0 && card.rank === 9 ? 0 : PILE_COUNT + card.suit,
+          cardPileIndex: card.suit === 0 && card.rank === 9 ? 0 : card.rank,
+        })),
+      })
     },
     onMouseDown: ({ clientX, clientY }: MouseParams) => {
       const { activeCard, cards } = get()

@@ -17,6 +17,7 @@ function App() {
       onMouseUp: state.onMouseUp,
       onMouseDown: state.onMouseDown,
       onMouseMove: state.onMouseMove,
+      autoCompleteGame: state.autoCompleteGame,
     })),
   )
 
@@ -32,6 +33,7 @@ function App() {
           onReset={() => state.newGame(state.suitCount)}
           suitCount={state.suitCount}
           onSuitCountChange={state.setSuitCount}
+          onAutoComplete={state.autoCompleteGame}
         />
 
         <div className="flex flex-col justify-center h-full gap-board absolute inset-0">

@@ -10,10 +10,12 @@ export function Header({
   onReset,
   suitCount,
   onSuitCountChange,
+  onAutoComplete,
 }: {
   onReset: () => void
   suitCount: number
   onSuitCountChange: (count: number) => void
+  onAutoComplete: () => void
 }) {
   return (
     <div className="flex justify-between items-center text-white p-5 relative z-[999]">
@@ -37,6 +39,13 @@ export function Header({
             </option>
           ))}
         </select>
+
+        <div
+          onClick={onAutoComplete}
+          className="flex items-center gap-1 cursor-pointer select-none h-10 justify-center text-xl hover:opacity-80 transition-opacity"
+        >
+          <span>Auto-Complete</span>
+        </div>
 
         <div
           onClick={onReset}
