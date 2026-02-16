@@ -20,7 +20,7 @@ export function Header({
   return (
     <div className="flex justify-between items-center text-white p-5 relative z-[999]">
       <div>
-        <span className="text-2xl">Solitaire</span>
+        <span className="text-2xl">Suit up</span>
       </div>
 
       <div className="flex items-center gap-4">
