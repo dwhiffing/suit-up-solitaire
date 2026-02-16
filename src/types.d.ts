@@ -8,3 +8,19 @@ interface CardType {
   suit: Suit
   rank: Rank
 }
+
+interface CardShallowState {
+  x: number
+  y: number
+  scale: number
+  isActive: boolean
+  isDragging: boolean
+  pileType: string
+  isFaceDown: boolean
+  cardPileIndex: number
+  suit: Suit
+  rank: Rank
+  winAnimationPhase: number
+  disableTransition: boolean
+  transitionDelay: number
+}

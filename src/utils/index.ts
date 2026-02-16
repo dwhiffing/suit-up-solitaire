@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CARD_Y_GAP } from './constants'
+import { CARD_Y_GAP, NUM_RANKS } from './constants'
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -36,4 +36,13 @@ export const getCardPilePosition = (card: CardType) => {
     width,
     height,
   }
+}
+
+const ROW_STAGGER = 500
+const CARD_STAGGER = 25
+export const getWinAnimationDelay = (suit: number, rank: number) => {
+  const index = suit * NUM_RANKS + rank
+  const rowIndex = Math.floor(index / NUM_RANKS)
+  const colIndex = index % NUM_RANKS
+  return rowIndex * ROW_STAGGER + colIndex * CARD_STAGGER
 }

@@ -22,8 +22,11 @@ export const SUIT_NAMES: string[] = [
   'shield',
 ]
 
-const SUITS = [0, 1, 2, 3, 4, 5, 6, 7]
-const VALUES = [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+export const NUM_RANKS = 10
+export const NUM_SUITS = 8
+
+const SUITS = Array.from({ length: NUM_SUITS }, (_, i) => i)
+const VALUES = Array.from({ length: NUM_RANKS }, (_, i) => i)
 export const CARDS = SUITS.map((s) =>
   VALUES.map((n) => ({ rank: n as Rank, suit: s as Suit })),
 ).flat()

@@ -1,7 +1,14 @@
 import { create } from 'zustand'
-import { getCardPilePosition } from '.'
+import { getCardPilePosition, getWinAnimationDelay } from '.'
 import { chunk, shuffle } from 'lodash'
-import { CARDS, CARD_TRANSITION_DURATION, PILE_COUNT } from './constants'
+import {
+  CARDS,
+  CARD_TRANSITION_DURATION,
+  NUM_RANKS,
+  PILE_COUNT,
+} from './constants'
+
+let intervalId: number | null = null
 
 type MouseParams = { clientX: number; clientY: number }
 
@@ -11,6 +18,8 @@ export interface GameState {
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
   shuffleIndex: number
   suitCount: number
+  winStartTime: number | null
+  winAnimProgress: number
 }
 
 interface GameStore extends GameState {
@@ -19,6 +28,7 @@ interface GameStore extends GameState {
   onMouseDown: (params: MouseParams) => void
   onMouseUp: (params: MouseParams) => void
   onMouseMove: (params: MouseParams) => void
+  startWinAnimation: () => void
   autoCompleteGame: () => void
 }
 
@@ -63,6 +73,22 @@ export const useGameStore = create<GameStore>((set, get) => {
       localStorage.setItem('suitCount', suitCount.toString())
       set({ suitCount })
       newGame(suitCount)
+    },
+    startWinAnimation: () => {
+      const { winStartTime, suitCount } = get()
+      if (winStartTime !== null) return
+      if (intervalId !== null) clearInterval(intervalId)
+
+      set({ winStartTime: Date.now() })
+
+      const delay = getWinAnimationDelay(suitCount - 1, 9)
+      setTimeout(() => {
+        const animate = () => {
+          const p = get().winAnimProgress
+          set({ winAnimProgress: (p + CARD_TRANSITION_DURATION * 0.00005) % 1 })
+        }
+        intervalId = setInterval(animate, CARD_TRANSITION_DURATION)
+      }, delay)
     },
     autoCompleteGame: () => {
       set({
@@ -170,6 +196,8 @@ function initializeGame(suitCount: number): GameState {
     cursorState: { mouseX: 0, mouseY: 0, pressed: false },
     shuffleIndex: -1,
     suitCount,
+    winStartTime: null,
+    winAnimProgress: 0,
   }
 }
 
@@ -221,6 +249,10 @@ const moveCard = (
       return { ...card, pileIndex: pileIndex, cardPileIndex }
     }),
   })
+
+  if (get().cards.every((card) => card.pileIndex >= PILE_COUNT)) {
+    setTimeout(() => get().startWinAnimation(), CARD_TRANSITION_DURATION * 1.5)
+  }
 
   checkAndCascade(sourcePileIndex, pileIndex, get, set)
 }
@@ -286,7 +318,8 @@ const getCardPile = (pileIndex: number, cards: CardType[]) => {
 }
 
 export const isPileComplete = (pileIndex: number, cards: CardType[]): boolean =>
-  getCardPile(pileIndex, cards).length === 10 && pileIndex > 10
+  getCardPile(pileIndex, cards).length === NUM_RANKS &&
+  pileIndex > PILE_COUNT - 1
 
 const findValidFoundationPile = (
   card: CardType,
