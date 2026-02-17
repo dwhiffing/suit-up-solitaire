@@ -13,6 +13,7 @@ import {
   useGameStore,
   type GameState,
   isPileComplete,
+  isFoundationPileDisabled,
 } from '../../utils/gameStore'
 import { CARD_TRANSITION_DURATION, NUM_RANKS } from '../../utils/constants'
 
@@ -55,6 +56,8 @@ const Card = ({ cardId }: { cardId: number }) => {
         : 'scale, translate'
   const transitionDelay =
     store.winAnimationPhase === 0 ? `${store.transitionDelay}ms` : '0ms'
+  const disabled =
+    store.isOnDisabledPile && !store.isFaceDown && !store.isDragging
 
   return (
     <div
@@ -76,6 +79,13 @@ const Card = ({ cardId }: { cardId: number }) => {
       <div className="card-back">
         <CardBackSVG />
       </div>
+
+      <div
+        className="card-disabled-overlay"
+        style={{ opacity: disabled ? 1 : 0 }}
+      >
+        ✕
+      </div>
     </div>
   )
 }
@@ -96,6 +106,9 @@ const getShallowCardState =
     const isInCompletedPile = isPileComplete(card.pileIndex, state.cards)
     const isFaceDown = isShuffling || isInCompletedPile
     const isDragging = isActive && pressed
+    const isOnDisabledPile =
+      pileType === 'foundation' &&
+      isFoundationPileDisabled(card.pileIndex, state.cards)
 
     const deckX = window.innerWidth / 2 - width / 2
     const deckY = window.innerHeight / 4
@@ -115,6 +128,7 @@ const getShallowCardState =
       cardPileIndex,
       suit,
       rank,
+      isOnDisabledPile,
       winAnimationPhase: -1,
       disableTransition: false,
       transitionDelay: 0,
@@ -182,6 +196,7 @@ const getCardWinAnimationState = (card: CardType, state: GameState) => {
     cardPileIndex: card.cardPileIndex,
     suit: card.suit,
     rank: card.rank,
+    isOnDisabledPile: false,
     winAnimationPhase: !winSetupComplete ? 0 : 1,
     disableTransition,
     transitionDelay,

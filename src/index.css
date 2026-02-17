@@ -53,7 +53,8 @@
   .card,
   .pile,
   .card-front,
-  .card-back {
+  .card-back,
+  .card-disabled-overlay {
     border-radius: calc(var(--base-size) * 0.05);
   }
 
@@ -66,6 +67,13 @@
     @apply absolute inset-0 z-[100000] bg-[#ebf0ee] opacity-0 transition-opacity duration-500;
     padding: calc(var(--base-padding) * 0.8);
     color: #e74c3c;
+  }
+
+  .card .card-disabled-overlay {
+    @apply absolute inset-0 z-[100001] flex items-center justify-center pointer-events-none transition-opacity;
+    font-size: calc(var(--base-size) * 0.8);
+    color: #0004;
+    background-color: #0004;
   }
 
   .card.face-down .card-back {

@@ -20,6 +20,7 @@ interface CardShallowState {
   cardPileIndex: number
   suit: Suit
   rank: Rank
+  isOnDisabledPile: boolean
   winAnimationPhase: number
   disableTransition: boolean
   transitionDelay: number

@@ -15,11 +15,15 @@ const INSTRUCTION_PAGES = [
   {
     title: 'How to Play',
     content:
-      'Any card may be moved into an empty tableau pile.\n\nFoundation piles must either start with a 0 or a 9.',
+      'Any card may be moved into an empty tableau pile.\n\nFoundation piles must either start with a 0 or a 9, then built ascending or descending respectively.',
   },
   {
     title: 'How to Play',
-    content: `Runs of suited cards will be moved automatically.\ntest`,
+    content: `If you move a card, and it is part of a run of matching cards, the rest of the cards will automatically be moved for you.`,
+  },
+  {
+    title: 'How to Play',
+    content: `You may "cheat" by placing an invalid card into an empty foundation pile, but the pile will be disabled until you remove the invalid card.`,
   },
 ]
 
@@ -45,7 +49,6 @@ export const InstructionsModal = () => {
   }
 
   const handleClose = () => {
-    setCurrentPage(0)
     closeInstructions()
   }
 

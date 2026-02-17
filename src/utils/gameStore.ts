@@ -264,14 +264,14 @@ const moveCard = (
   const pileType = pile?.dataset.piletype || 'tableau'
 
   const suitsMatch = movingCards.every((c) => c.suit === targetCard?.suit)
-  let isValid =
+  const isValid =
     !targetCard ||
     (isAdjacentInValue([targetCard, ...movingCards]) && suitsMatch)
 
   if (pileType === 'foundation') {
-    if (!targetCard)
-      // if foundation and its empty, only allow 0s and 9s
-      isValid = movingCards[0].rank === 0 || movingCards[0].rank === 9
+    if (isFoundationPileDisabled(pileIndex, cards)) {
+      return set({ cards, activeCard: null })
+    }
   }
 
   if (!isValid) return set({ cards, activeCard: null })
@@ -350,9 +350,20 @@ const isAscending = (cards: CardType[]) =>
     cards[i + 1] ? card.rank === cards[i + 1].rank - 1 : true,
   ).length === cards.length
 
-const getCardPile = (pileIndex: number, cards: CardType[]) => {
+export const getCardPile = (pileIndex: number, cards: CardType[]) => {
   const pile = cards.filter((c) => c.pileIndex === pileIndex)
   return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
+}
+
+export const isFoundationPileDisabled = (
+  pileIndex: number,
+  cards: CardType[],
+): boolean => {
+  if (pileIndex <= 10) return false
+  const pile = getCardPile(pileIndex, cards)
+  if (pile.length !== 1) return false
+
+  return pile[0].rank !== 0 && pile[0].rank !== 9
 }
 
 export const isPileComplete = (pileIndex: number, cards: CardType[]): boolean =>
@@ -366,6 +377,11 @@ const findValidFoundationPile = (
 ): number | null => {
   for (let i = 0; i < suitCount; i++) {
     const foundationPileIndex = PILE_COUNT + i
+
+    if (isFoundationPileDisabled(foundationPileIndex, cards)) {
+      continue
+    }
+
     const foundationCards = getCardPile(foundationPileIndex, cards)
     const topCard = foundationCards.at(-1)
 
