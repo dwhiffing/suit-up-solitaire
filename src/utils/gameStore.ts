@@ -81,6 +81,7 @@ export const useGameStore = create<GameStore>((set, get) => {
   newGame(suitCount)
 
   if (!hasSeenInstructions) {
+    localStorage.setItem('hasSeenInstructions', 'true')
     setTimeout(() => set({ showInstructionsModal: true }), 1000)
   }
 
