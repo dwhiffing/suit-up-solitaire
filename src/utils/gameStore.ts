@@ -9,6 +9,7 @@ import {
 } from './constants'
 
 let intervalId: number | null = null
+let timeoutId: number | null = null
 
 type MouseParams = { clientX: number; clientY: number }
 
@@ -63,7 +64,8 @@ const animateShuffle = (
 
 export const useGameStore = create<GameStore>((set, get) => {
   const newGame = (suitCount: number) => {
-    if (intervalId !== null) clearInterval(intervalId)
+    if (intervalId !== null) cancelAnimationFrame(intervalId)
+    if (timeoutId !== null) clearTimeout(timeoutId)
 
     set(initializeGame(suitCount))
     setTimeout(() => animateShuffle(set, get), 500)
@@ -81,19 +83,28 @@ export const useGameStore = create<GameStore>((set, get) => {
     startWinAnimation: () => {
       const { winStartTime, suitCount } = get()
       if (winStartTime !== null) return
-      if (intervalId !== null) clearInterval(intervalId)
+      if (intervalId !== null) cancelAnimationFrame(intervalId)
+      if (timeoutId !== null) clearTimeout(timeoutId)
 
       set({ winStartTime: Date.now() })
 
       const delay = getWinAnimationDelay(suitCount - 1, 9)
-      intervalId = setTimeout(() => {
-        const animate = () => {
+      timeoutId = setTimeout(() => {
+        let lastTime = performance.now()
+
+        timeoutId = setTimeout(() => set({ showWinModal: true }), 1000)
+
+        const animate = (currentTime: number) => {
+          const deltaTime = currentTime - lastTime
+          lastTime = currentTime
+
           const p = get().winAnimProgress
-          set({ winAnimProgress: (p + CARD_TRANSITION_DURATION * 0.00005) % 1 })
-          set({ showWinModal: true })
+          set({ winAnimProgress: (p + deltaTime * 0.00005) % 1 })
+
+          intervalId = requestAnimationFrame(animate)
         }
-        intervalId = setInterval(animate, CARD_TRANSITION_DURATION)
-      }, delay)
+        intervalId = requestAnimationFrame(animate)
+      }, delay + CARD_TRANSITION_DURATION)
     },
     autoCompleteGame: () => {
       set({

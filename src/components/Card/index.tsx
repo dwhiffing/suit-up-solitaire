@@ -39,7 +39,7 @@ const Card = ({ cardId }: { cardId: number }) => {
 
   if (!hasMounted) return null
 
-  const translate = `${store.x}px ${store.y}px`
+  const translate = `${store.x}px ${store.y}px 0`
   const boxShadow =
     !store.isFaceDown && store.pileType === 'tableau'
       ? '0 0 5px rgba(0, 0, 0, 0.25)'
@@ -69,6 +69,7 @@ const Card = ({ cardId }: { cardId: number }) => {
         transitionDelay,
         translate,
         boxShadow,
+        willChange: 'transform',
       }}
     >
       <CardFront suit={store.suit} rank={store.rank} />
@@ -124,6 +125,8 @@ export default memo(Card)
 
 const getCardWinAnimationState = (card: CardType, state: GameState) => {
   const { width: cardWidth, height: cardHeight } = getCardPilePosition(card)
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
   const index = card.suit * NUM_RANKS + card.rank
   const numRows = state.cards.length / NUM_RANKS
   const rowIndex = Math.floor(index / NUM_RANKS)
@@ -132,16 +135,16 @@ const getCardWinAnimationState = (card: CardType, state: GameState) => {
   const progress = (state.winAnimProgress + offset) % 1
   const disableTransition = progress < 0.02
 
-  const totalWidth = window.innerWidth + cardWidth * 3
+  const totalWidth = windowWidth + cardWidth * 3
   let gap = (totalWidth - cardWidth * NUM_RANKS) / NUM_RANKS
   let totalHeight = numRows * cardHeight + (numRows - 1) * gap
-  let yOffset = (window.innerHeight - totalHeight) / 2
+  let yOffset = (windowHeight - totalHeight) / 2
 
   // if the cards would go off the top of the screen, reduce the gap and scale down the cards
   let scale = 1
   if (yOffset < -cardHeight / 2) {
     yOffset = -cardHeight / 2
-    totalHeight = window.innerHeight - 2 * yOffset
+    totalHeight = windowHeight - 2 * yOffset
     gap = (totalHeight - numRows * cardHeight) / (numRows - 1)
     scale = 0.9
   }
@@ -151,7 +154,7 @@ const getCardWinAnimationState = (card: CardType, state: GameState) => {
       ? // even rows move right
         -cardWidth * 2 + progress * totalWidth
       : // odd rows move left
-        window.innerWidth + cardWidth - progress * totalWidth
+        windowWidth + cardWidth - progress * totalWidth
 
   const y = rowIndex * (cardHeight + gap) + yOffset
 
