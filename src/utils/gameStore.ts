@@ -18,6 +18,7 @@ export interface GameState {
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
   shuffleIndex: number
   suitCount: number
+  gameStartTime: number
   winStartTime: number | null
   winAnimProgress: number
   showWinModal: boolean
@@ -200,6 +201,7 @@ function initializeGame(suitCount: number): GameState {
     cursorState: { mouseX: 0, mouseY: 0, pressed: false },
     shuffleIndex: -1,
     suitCount,
+    gameStartTime: Date.now(),
     winStartTime: null,
     winAnimProgress: 0,
     showWinModal: false,

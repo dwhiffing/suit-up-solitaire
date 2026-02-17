@@ -38,11 +38,24 @@ export const getCardPilePosition = (card: CardType) => {
   }
 }
 
-const ROW_STAGGER = 500
-const CARD_STAGGER = 25
+const ROW_STAGGER = 400
+const CARD_STAGGER = 30
 export const getWinAnimationDelay = (suit: number, rank: number) => {
   const index = suit * NUM_RANKS + rank
   const rowIndex = Math.floor(index / NUM_RANKS)
   const colIndex = index % NUM_RANKS
   return rowIndex * ROW_STAGGER + colIndex * CARD_STAGGER
+}
+
+export const formatTime = (milliseconds: number): string => {
+  const totalSeconds = Math.floor(milliseconds / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }

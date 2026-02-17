@@ -1,4 +1,5 @@
 import { DEV_MODE } from '../utils/constants'
+import { Timer } from './Timer'
 
 const DIFFICULTY_LEVELS = [
   { suits: 4, label: 'Easy (4)' },
@@ -21,11 +22,18 @@ export function Header({
 }) {
   return (
     <div className="flex justify-between items-center text-white p-5 relative z-[999]">
-      <div>
+      <div className="flex-1">
         <span className="text-2xl">Suit up</span>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div
+        className="flex-1 flex justify-center"
+        onClick={() => DEV_MODE && onAutoComplete()}
+      >
+        <Timer />
+      </div>
+
+      <div className="flex-1 flex items-center justify-end gap-4">
         <select
           value={suitCount}
           onChange={(e) => onSuitCountChange(Number(e.target.value))}
@@ -41,7 +49,6 @@ export function Header({
           ))}
         </select>
 
-        {DEV_MODE && <button onClick={onAutoComplete}>Auto-Complete</button>}
         <button onClick={onReset}>New Game</button>
       </div>
     </div>
