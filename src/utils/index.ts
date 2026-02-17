@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CARD_Y_GAP, NUM_RANKS } from './constants'
+import { NUM_RANKS } from './constants'
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -25,6 +25,7 @@ export const getCardPilePosition = (card: CardType) => {
   let offsetY = 0
   const pileType = pileEl?.dataset.piletype ?? 'tableau'
 
+  const CARD_Y_GAP = window.innerHeight < 500 ? 0.25 : 0.3
   if (pileType === 'tableau') {
     offsetY = card.cardPileIndex * (CARD_Y_GAP * width)
   }

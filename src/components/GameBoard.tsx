@@ -51,7 +51,7 @@ function App() {
             ))}
           </div>
 
-          <div className="min-h-[24vw] w-full flex gap-board items-start justify-center">
+          <div className="min-h-[20vw] w-full flex gap-board items-start justify-center">
             {Array.from({ length: PILE_COUNT }).map((_, index) => (
               <Pile key={index} pileIndex={index} pileType="tableau" />
             ))}

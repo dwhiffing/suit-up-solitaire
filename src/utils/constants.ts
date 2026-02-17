@@ -1,6 +1,5 @@
 export const DEV_MODE = true
 export const PILE_COUNT = 11
-export const CARD_Y_GAP = 0.3
 export const CARD_TRANSITION_DURATION = 350
 export const SUIT_COLORS: string[] = [
   '#e74c3c',
