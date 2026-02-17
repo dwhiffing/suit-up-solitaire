@@ -149,6 +149,14 @@ const getCardWinAnimationState = (card: CardType, state: GameState) => {
     scale = 0.9
   }
 
+  if (totalHeight > windowHeight) {
+    yOffset = 0
+    yOffset = -cardHeight / 2
+    gap =
+      (windowHeight + cardHeight - cardHeight * state.suitCount) /
+      (state.suitCount - 1)
+  }
+
   const x =
     rowIndex % 2 === 0
       ? // even rows move right
