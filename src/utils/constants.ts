@@ -1,4 +1,4 @@
-export const DEV_MODE = true
+export const DEV_MODE = false
 export const PILE_COUNT = 11
 export const CARD_TRANSITION_DURATION = 350
 export const SUIT_COLORS: string[] = [
