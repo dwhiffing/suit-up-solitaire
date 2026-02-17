@@ -1,3 +1,5 @@
+import { DEV_MODE } from '../utils/constants'
+
 const DIFFICULTY_LEVELS = [
   { suits: 4, label: 'Easy (4)' },
   { suits: 5, label: 'Medium (5)' },
@@ -27,7 +29,6 @@ export function Header({
         <select
           value={suitCount}
           onChange={(e) => onSuitCountChange(Number(e.target.value))}
-          className="bg-white/10 text-white px-3 py-2 rounded cursor-pointer text-lg border border-white/20 hover:bg-white/20 transition-colors"
         >
           {DIFFICULTY_LEVELS.map((level) => (
             <option
@@ -40,19 +41,8 @@ export function Header({
           ))}
         </select>
 
-        <div
-          onClick={onAutoComplete}
-          className="flex items-center gap-1 cursor-pointer select-none h-10 justify-center text-xl hover:opacity-80 transition-opacity"
-        >
-          <span>Auto-Complete</span>
-        </div>
-
-        <div
-          onClick={onReset}
-          className="flex items-center gap-1 cursor-pointer select-none h-10 justify-center text-xl hover:opacity-80 transition-opacity"
-        >
-          <span>New Game</span>
-        </div>
+        {DEV_MODE && <button onClick={onAutoComplete}>Auto-Complete</button>}
+        <button onClick={onReset}>New Game</button>
       </div>
     </div>
   )

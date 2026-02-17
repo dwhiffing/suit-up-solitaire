@@ -20,6 +20,7 @@ export interface GameState {
   suitCount: number
   winStartTime: number | null
   winAnimProgress: number
+  showWinModal: boolean
 }
 
 interface GameStore extends GameState {
@@ -88,6 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         const animate = () => {
           const p = get().winAnimProgress
           set({ winAnimProgress: (p + CARD_TRANSITION_DURATION * 0.00005) % 1 })
+          set({ showWinModal: true })
         }
         intervalId = setInterval(animate, CARD_TRANSITION_DURATION)
       }, delay)
@@ -200,6 +202,7 @@ function initializeGame(suitCount: number): GameState {
     suitCount,
     winStartTime: null,
     winAnimProgress: 0,
+    showWinModal: false,
   }
 }
 

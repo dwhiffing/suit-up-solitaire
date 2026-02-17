@@ -28,6 +28,7 @@
   body {
     @apply min-h-screen;
     background-color: #45a173;
+    color: white;
     font-family: 'Roboto', sans-serif;
     box-sizing: border-box;
     margin: 0;
@@ -36,10 +37,13 @@
     overflow: hidden;
     touch-action: none;
   }
-  svg {
-    overflow: visible;
+  button {
+    @apply bg-[#0002] px-3 py-2 rounded hover:bg-[#0003] transition-colors;
   }
 
+  select {
+    @apply bg-[#0002] px-3 py-2 rounded cursor-pointer transition-colors;
+  }
   .card,
   .pile {
     width: var(--base-size);

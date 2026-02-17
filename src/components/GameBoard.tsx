@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { PILE_COUNT } from '../utils/constants'
 import { Pile } from './Pile'
 import Card from './Card'
+import { WinModal } from './WinModal'
 
 function App() {
   const state = useGameStore(
@@ -60,6 +61,8 @@ function App() {
           <Card key={`card-${cardId}`} cardId={cardId} />
         ))}
       </div>
+
+      <WinModal />
     </>
   )
 }
