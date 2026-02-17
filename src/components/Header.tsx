@@ -25,7 +25,7 @@ export function Header({
   return (
     <div className="flex justify-between items-center text-white p-3 lg:p-5 relative z-[999] pointer-events-none">
       <div className="flex-1 flex items-center gap-3 pointer-events-auto">
-        <span className="text-2xl">Suit up</span>
+        <span className="text-2xl whitespace-nowrap">Suit up</span>
         <button onClick={onOpenInstructions} title="Instructions">
           ?
         </button>
@@ -54,7 +54,10 @@ export function Header({
           ))}
         </select>
 
-        <button onClick={onReset}>New Game</button>
+        <button onClick={onReset}>
+          <div className="md:hidden">+</div>
+          <div className="hidden md:flex">New Game</div>
+        </button>
       </div>
     </div>
   )

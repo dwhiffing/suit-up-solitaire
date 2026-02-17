@@ -80,6 +80,13 @@ export const useGameStore = create<GameStore>((set, get) => {
 
   newGame(suitCount)
 
+  if (window.matchMedia('(any-pointer: coarse)').matches) {
+    document.addEventListener('click', () => {
+      if (!document.fullscreenElement)
+        document.documentElement.requestFullscreen({ navigationUI: 'hide' })
+    })
+  }
+
   if (!hasSeenInstructions) {
     localStorage.setItem('hasSeenInstructions', 'true')
     setTimeout(() => set({ showInstructionsModal: true }), 1000)
