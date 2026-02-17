@@ -61,6 +61,8 @@ const animateShuffle = (
 
 export const useGameStore = create<GameStore>((set, get) => {
   const newGame = (suitCount: number) => {
+    if (intervalId !== null) clearInterval(intervalId)
+
     set(initializeGame(suitCount))
     setTimeout(() => animateShuffle(set, get), 500)
   }
@@ -82,7 +84,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       set({ winStartTime: Date.now() })
 
       const delay = getWinAnimationDelay(suitCount - 1, 9)
-      setTimeout(() => {
+      intervalId = setTimeout(() => {
         const animate = () => {
           const p = get().winAnimProgress
           set({ winAnimProgress: (p + CARD_TRANSITION_DURATION * 0.00005) % 1 })
