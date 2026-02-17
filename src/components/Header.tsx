@@ -14,26 +14,31 @@ export function Header({
   suitCount,
   onSuitCountChange,
   onAutoComplete,
+  onOpenInstructions,
 }: {
   onReset: () => void
   suitCount: number
   onSuitCountChange: (count: number) => void
   onAutoComplete: () => void
+  onOpenInstructions: () => void
 }) {
   return (
-    <div className="flex justify-between items-center text-white p-5 relative z-[999]">
-      <div className="flex-1">
+    <div className="flex justify-between items-center text-white p-5 relative z-[999] pointer-events-none">
+      <div className="flex-1 flex items-center gap-3 pointer-events-auto">
         <span className="text-2xl">Suit up</span>
+        <button onClick={onOpenInstructions} title="Instructions">
+          ?
+        </button>
       </div>
 
       <div
-        className="flex-1 flex justify-center"
+        className="flex-1 flex justify-center pointer-events-auto"
         onClick={() => DEV_MODE && onAutoComplete()}
       >
         <Timer />
       </div>
 
-      <div className="flex-1 flex items-center justify-end gap-4">
+      <div className="flex-1 flex items-center justify-end gap-4 pointer-events-auto">
         <select
           value={suitCount}
           onChange={(e) => onSuitCountChange(Number(e.target.value))}

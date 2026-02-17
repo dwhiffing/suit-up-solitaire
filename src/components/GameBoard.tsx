@@ -7,6 +7,7 @@ import { PILE_COUNT } from '../utils/constants'
 import { Pile } from './Pile'
 import Card from './Card'
 import { WinModal } from './WinModal'
+import { InstructionsModal } from './InstructionsModal'
 
 function App() {
   const state = useGameStore(
@@ -19,6 +20,7 @@ function App() {
       onMouseDown: state.onMouseDown,
       onMouseMove: state.onMouseMove,
       autoCompleteGame: state.autoCompleteGame,
+      openInstructions: state.openInstructions,
     })),
   )
 
@@ -35,6 +37,7 @@ function App() {
           suitCount={state.suitCount}
           onSuitCountChange={state.setSuitCount}
           onAutoComplete={state.autoCompleteGame}
+          onOpenInstructions={state.openInstructions}
         />
 
         <div className="flex flex-col justify-center h-full gap-board absolute inset-0">
@@ -63,6 +66,7 @@ function App() {
       </div>
 
       <WinModal />
+      <InstructionsModal />
     </>
   )
 }

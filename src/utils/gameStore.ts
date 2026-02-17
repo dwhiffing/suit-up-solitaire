@@ -23,6 +23,7 @@ export interface GameState {
   winStartTime: number | null
   winAnimProgress: number
   showWinModal: boolean
+  showInstructionsModal: boolean
 }
 
 interface GameStore extends GameState {
@@ -33,6 +34,8 @@ interface GameStore extends GameState {
   onMouseMove: (params: MouseParams) => void
   startWinAnimation: () => void
   autoCompleteGame: () => void
+  openInstructions: () => void
+  closeInstructions: () => void
 }
 
 // tracks the initial cursor position when dragging starts
@@ -71,7 +74,16 @@ export const useGameStore = create<GameStore>((set, get) => {
     setTimeout(() => animateShuffle(set, get), 500)
   }
   const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
+
+  const hasSeenInstructions =
+    localStorage.getItem('hasSeenInstructions') === 'true'
+
   newGame(suitCount)
+
+  if (!hasSeenInstructions) {
+    setTimeout(() => set({ showInstructionsModal: true }), 1000)
+  }
+
   return {
     ...initializeGame(suitCount),
     newGame,
@@ -186,6 +198,13 @@ export const useGameStore = create<GameStore>((set, get) => {
       const mouseY = clientY - cursorDelta.y
       set({ cursorState: { ...get().cursorState, mouseX, mouseY } })
     },
+    openInstructions: () => {
+      localStorage.setItem('hasSeenInstructions', 'true')
+      set({ showInstructionsModal: true })
+    },
+    closeInstructions: () => {
+      set({ showInstructionsModal: false })
+    },
   }
 })
 
@@ -216,6 +235,7 @@ function initializeGame(suitCount: number): GameState {
     winStartTime: null,
     winAnimProgress: 0,
     showWinModal: false,
+    showInstructionsModal: false,
   }
 }
 
