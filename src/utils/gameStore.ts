@@ -5,13 +5,14 @@ import {
   loadBestTimes,
   saveBestTimes,
 } from '.'
-import { chunk, shuffle } from 'lodash'
+import { chunk } from 'lodash'
 import {
   CARDS,
   CARD_TRANSITION_DURATION,
   NUM_RANKS,
   PILE_COUNT,
 } from './constants'
+import { seededShuffle } from './seededShuffle'
 
 let intervalId: number | null = null
 let timeoutId: number | null = null
@@ -231,7 +232,7 @@ function initializeGame(suitCount: number): GameState {
   const selectedCards = CARDS.filter((card) => card.suit < suitCount)
 
   const cards = chunk(
-    shuffle(selectedCards),
+    seededShuffle(selectedCards, Date.now()),
     Math.ceil(selectedCards.length / PILE_COUNT),
   )
     .flatMap((pile, pileIndex) =>
