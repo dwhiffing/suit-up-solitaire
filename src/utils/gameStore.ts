@@ -308,6 +308,8 @@ const checkAndCascade = (
 
   if (!nextCard || !lastCard) return
 
+  if (isFoundationPileDisabled(targetPileIndex, cards)) return
+
   const suitsMatch = nextCard.suit === lastCard.suit
   const ranksAdjacent = Math.abs(nextCard.rank - lastCard.rank) === 1
 
