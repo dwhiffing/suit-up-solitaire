@@ -51,7 +51,7 @@ const INSTRUCTION_PAGES = [
     content: (
       <>
         You may <b>double click</b> a card to <b>move it</b> to a{' '}
-        <b>foundation pile</b>, assuming a valid is available.
+        <b>foundation pile</b>, assuming a valid pile is available.
         <br />
         <br />
         If you move a card that is part of a <b>suited run</b>, the rest of the
