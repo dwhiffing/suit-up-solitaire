@@ -48,15 +48,31 @@ export const getWinAnimationDelay = (suit: number, rank: number) => {
   return rowIndex * ROW_STAGGER + colIndex * CARD_STAGGER
 }
 
-export const formatTime = (milliseconds: number): string => {
-  const totalSeconds = Math.floor(milliseconds / 1000)
+const padTime = (num: number) => num.toString().padStart(2, '0')
+
+export const formatTime = (
+  totalSeconds: number,
+  displayLabels = false,
+): string => {
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
 
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  if (displayLabels) {
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
+    if (minutes > 0) return `${minutes}m ${seconds}s`
+    return `${seconds}s`
   }
 
-  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  if (hours > 0) return `${hours}:${padTime(minutes)}:${padTime(seconds)}`
+  return `${padTime(minutes)}:${padTime(seconds)}`
+}
+
+export const loadBestTimes = (): Record<number, number> => {
+  const saved = localStorage.getItem('bestTimes')
+  return saved ? JSON.parse(saved) : {}
+}
+
+export const saveBestTimes = (bestTimes: Record<number, number>) => {
+  localStorage.setItem('bestTimes', JSON.stringify(bestTimes))
 }

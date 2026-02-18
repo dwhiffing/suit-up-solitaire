@@ -1,33 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useShallow } from 'zustand/shallow'
 import { useGameStore } from '../utils/gameStore'
 import { formatTime } from '../utils'
 
 export const Timer = () => {
-  const state = useGameStore(
+  const { currentTime, incrementTimer, hasWon } = useGameStore(
     useShallow((state) => ({
-      gameStartTime: state.gameStartTime,
-      winStartTime: state.winStartTime,
+      hasWon: state.winStartTime !== null,
+      currentTime: state.currentTime,
+      incrementTimer: state.incrementTimer,
     })),
   )
 
-  const [currentTime, setCurrentTime] = useState(0)
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTime(Date.now())
+      if (!document.hidden && !hasWon) incrementTimer()
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
-
-  const elapsed = state.winStartTime
-    ? state.winStartTime - state.gameStartTime
-    : currentTime - state.gameStartTime
+  }, [incrementTimer, hasWon])
 
   return (
-    <div className="font-mono text-white/50">
-      {formatTime(elapsed > 0 ? elapsed : 0)}
-    </div>
+    <div className="font-mono text-white/50">{formatTime(currentTime)}</div>
   )
 }

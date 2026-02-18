@@ -1,5 +1,10 @@
 import { create } from 'zustand'
-import { getCardPilePosition, getWinAnimationDelay } from '.'
+import {
+  getCardPilePosition,
+  getWinAnimationDelay,
+  loadBestTimes,
+  saveBestTimes,
+} from '.'
 import { chunk, shuffle } from 'lodash'
 import {
   CARDS,
@@ -19,11 +24,11 @@ export interface GameState {
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
   shuffleIndex: number
   suitCount: number
-  gameStartTime: number
   winStartTime: number | null
   winAnimProgress: number
   showWinModal: boolean
   showInstructionsModal: boolean
+  currentTime: number
 }
 
 interface GameStore extends GameState {
@@ -36,6 +41,7 @@ interface GameStore extends GameState {
   autoCompleteGame: () => void
   openInstructions: () => void
   closeInstructions: () => void
+  incrementTimer: () => void
 }
 
 // tracks the initial cursor position when dragging starts
@@ -101,10 +107,16 @@ export const useGameStore = create<GameStore>((set, get) => {
       newGame(suitCount)
     },
     startWinAnimation: () => {
-      const { winStartTime, suitCount } = get()
+      const { winStartTime, suitCount, currentTime } = get()
       if (winStartTime !== null) return
       if (intervalId !== null) cancelAnimationFrame(intervalId)
       if (timeoutId !== null) clearTimeout(timeoutId)
+
+      const bestTimes = loadBestTimes()
+      const bestTime = bestTimes[suitCount] ?? Infinity
+      if (currentTime < bestTime) {
+        saveBestTimes({ ...bestTimes, [suitCount]: currentTime })
+      }
 
       set({ winStartTime: Date.now() })
 
@@ -210,9 +222,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       localStorage.setItem('hasSeenInstructions', 'true')
       set({ showInstructionsModal: true })
     },
-    closeInstructions: () => {
-      set({ showInstructionsModal: false })
-    },
+    closeInstructions: () => set({ showInstructionsModal: false }),
+    incrementTimer: () => set({ currentTime: get().currentTime + 1 }),
   }
 })
 
@@ -239,7 +250,7 @@ function initializeGame(suitCount: number): GameState {
     cursorState: { mouseX: 0, mouseY: 0, pressed: false },
     shuffleIndex: -1,
     suitCount,
-    gameStartTime: Date.now(),
+    currentTime: 0,
     winStartTime: null,
     winAnimProgress: 0,
     showWinModal: false,
@@ -360,7 +371,7 @@ const isAscending = (cards: CardType[]) =>
     cards[i + 1] ? card.rank === cards[i + 1].rank - 1 : true,
   ).length === cards.length
 
-export const getCardPile = (pileIndex: number, cards: CardType[]) => {
+const getCardPile = (pileIndex: number, cards: CardType[]) => {
   const pile = cards.filter((c) => c.pileIndex === pileIndex)
   return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
 }
