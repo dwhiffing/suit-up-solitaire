@@ -30,3 +30,11 @@ const VALUES = Array.from({ length: NUM_RANKS }, (_, i) => i)
 export const CARDS = SUITS.map((s) =>
   VALUES.map((n) => ({ rank: n as Rank, suit: s as Suit })),
 ).flat()
+
+export const DIFFICULTIES: Record<number, string> = {
+  4: 'Easy',
+  5: 'Medium',
+  6: 'Hard',
+  7: 'Expert',
+  8: 'Diabolical',
+}

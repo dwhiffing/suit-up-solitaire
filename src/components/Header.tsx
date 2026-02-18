@@ -1,13 +1,5 @@
-import { DEV_MODE } from '../utils/constants'
+import { DEV_MODE, DIFFICULTIES } from '../utils/constants'
 import { Timer } from './Timer'
-
-const DIFFICULTY_LEVELS = [
-  { suits: 4, label: 'Easy (4)' },
-  { suits: 5, label: 'Medium (5)' },
-  { suits: 6, label: 'Hard (6)' },
-  { suits: 7, label: 'Expert (7)' },
-  { suits: 8, label: 'Diabolical (8)' },
-]
 
 export function Header({
   onReset,
@@ -25,7 +17,7 @@ export function Header({
   return (
     <div className="flex justify-between items-center text-white p-3 lg:p-5 relative z-[999] pointer-events-none">
       <div className="flex-1 flex items-center gap-3 pointer-events-auto">
-        <span className="text-2xl whitespace-nowrap">Suit up</span>
+        <span className="text-2xl whitespace-nowrap font-bold">Suit up</span>
         <button onClick={onOpenInstructions} title="Instructions">
           ?
         </button>
@@ -43,13 +35,9 @@ export function Header({
           value={suitCount}
           onChange={(e) => onSuitCountChange(Number(e.target.value))}
         >
-          {DIFFICULTY_LEVELS.map((level) => (
-            <option
-              key={level.suits}
-              value={level.suits}
-              className="bg-gray-800"
-            >
-              {level.label}
+          {Object.entries(DIFFICULTIES).map(([suits, label]) => (
+            <option key={suits} value={suits} className="bg-gray-800">
+              {label} ({suits})
             </option>
           ))}
         </select>

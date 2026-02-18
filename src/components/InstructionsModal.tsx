@@ -4,26 +4,60 @@ import { useGameStore } from '../utils/gameStore'
 const INSTRUCTION_PAGES = [
   {
     title: 'Welcome to Suit Up!',
-    content:
-      "The goal of the game is to move all the cards from the bottom 'tableau' piles to the top 'foundation' piles.\n\nThere is one foundation pile per suit.",
+    content: (
+      <>
+        The goal of the game is to move the cards from the{' '}
+        <b className="whitespace-nowrap">bottom piles</b> <i>(tableau)</i> to
+        the <b>top piles</b> <i>(foundation)</i>, sorted by <b>suit</b> and{' '}
+        <b>rank</b>
+        .
+        <br />
+        <br />
+        You may only move <b>exposed cards</b>, and only <b>one at a time</b>.
+      </>
+    ),
   },
   {
-    title: 'How to Play',
-    content:
-      'A card may be moved to a card that is one rank higher or lower with a matching suit. \n\nYou can only move one card at a time.',
+    title: 'Moving Cards',
+    content: (
+      <>
+        A card may be moved to a card with the <b>same suit</b> that is{' '}
+        <b>one rank higher or lower</b>, or to an <b>empty pile</b>.
+        <br />
+        <br />
+        For example, a <b>3</b>
+        <span className="text-[#e74c3c]">♥</span> may be moved onto either a{' '}
+        <b>2</b>
+        <span className="text-[#e74c3c]">♥</span>, a <b>4</b>
+        <span className="text-[#e74c3c]">♥</span>, or an <b>empty pile</b>.
+      </>
+    ),
   },
   {
-    title: 'How to Play',
-    content:
-      'Any card may be moved into an empty tableau pile.\n\nFoundation piles must either start with a 0 or a 9, then built ascending or descending respectively.',
+    title: 'Foundation Piles',
+    content: (
+      <>
+        Foundations should start with <b>0 or 9</b>, then run <b>ascending</b>{' '}
+        or <b>descending</b> respectively.
+        <br />
+        <br />
+        <b>Empty foundations</b> may store an <b>invalid card</b>, but are
+        <b> blocked</b> until the card is removed.
+      </>
+    ),
   },
   {
-    title: 'How to Play',
-    content: `If you move a card, and it is part of a run of matching cards, the rest of the cards will automatically be moved for you.`,
-  },
-  {
-    title: 'How to Play',
-    content: `You may "cheat" by placing an invalid card into an empty foundation pile, but the pile will be disabled until you remove the invalid card.`,
+    title: 'Tips',
+    content: (
+      <>
+        You may <b>double click</b> a card to <b>move it</b> to a{' '}
+        <b>foundation pile</b>, assuming a valid is available.
+        <br />
+        <br />
+        If you move a card that is part of a <b>suited run</b>, the rest of the
+        cards will be <b>moved automatically</b>.
+      </>
+    ),
   },
 ]
 
@@ -67,14 +101,14 @@ export const InstructionsModal = () => {
       onClick={handleClose}
     >
       <div
-        className="flex flex-col justify-between bg-[#45a173] rounded-lg shadow-xl w-[450px] h-[300px] p-8"
+        className="flex flex-col justify-between bg-[#45a173] rounded-lg shadow-xl w-full min-w-[360px] max-w-[500px] min-h-[340px] p-6 m-4"
         onClick={(e) => {
           e.stopPropagation()
           handleNext()
         }}
       >
         <div className="flex-1">
-          <h2 className="text-3xl mb-4">
+          <h2 className="text-3xl mb-4 font-bold">
             {INSTRUCTION_PAGES[currentPage].title}
           </h2>
           <p className="text-lg leading-relaxed whitespace-pre-line">

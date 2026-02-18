@@ -6,8 +6,32 @@
   @font-face {
     font-family: 'Roboto';
     src: url('/Roboto.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    src: url('/Roboto.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    src: url('/Roboto.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    src: url('/Roboto-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    src: url('/Roboto-Italic.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
   }
 
   :root {
@@ -37,12 +61,18 @@
     overflow: hidden;
     touch-action: none;
   }
+  b {
+    font-weight: 800;
+  }
+  i {
+    font-style: italic;
+  }
   button {
-    @apply bg-[#0002] px-3 py-2 rounded hover:bg-[#0003] transition-colors;
+    @apply bg-[#0002] px-3 py-2 rounded hover:bg-[#0003] transition-colors font-[700];
   }
 
   select {
-    @apply bg-[#0002] px-3 py-2 rounded cursor-pointer transition-colors;
+    @apply bg-[#0002] px-3 py-2 rounded cursor-pointer transition-colors font-[700];
   }
   .card,
   .pile {
