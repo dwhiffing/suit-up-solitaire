@@ -57,7 +57,10 @@ const Card = ({ cardId }: { cardId: number }) => {
   const transitionDelay =
     store.winAnimationPhase === 0 ? `${store.transitionDelay}ms` : '0ms'
   const disabled =
-    store.isOnDisabledPile && !store.isFaceDown && !store.isDragging
+    store.isOnDisabledPile &&
+    !store.isFaceDown &&
+    !store.isDragging &&
+    !isActive
 
   return (
     <div
