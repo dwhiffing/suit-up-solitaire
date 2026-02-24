@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+solve-check-rs/target
+solve-check-rs/solutions
