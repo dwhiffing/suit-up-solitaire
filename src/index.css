@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-surface: #45a173;
@@ -21,13 +21,13 @@
 
 @layer base {
   @font-face {
-    font-family: 'Roboto';
-    src: url('/Roboto.ttf') format('truetype');
+    font-family: "Roboto";
+    src: url("/Roboto.ttf") format("truetype");
     font-style: normal;
   }
   @font-face {
-    font-family: 'Roboto';
-    src: url('/Roboto-Italic.ttf') format('truetype');
+    font-family: "Roboto";
+    src: url("/Roboto-Italic.ttf") format("truetype");
     font-style: italic;
   }
 
@@ -58,7 +58,7 @@
   body {
     @apply min-h-screen bg-surface;
     color: white;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -165,7 +165,7 @@
 
   .card.inactive::before,
   .pile::before {
-    content: '';
+    content: "";
     position: absolute;
     pointer-events: auto;
     inset: calc(var(--base-gap) * -1);

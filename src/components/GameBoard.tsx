@@ -1,13 +1,13 @@
-import { useWindowEvent, useForceUpdate } from '../utils'
 import debounce from 'lodash/debounce'
-import { Header } from './Header'
-import { useGameStore } from '../utils/gameStore'
 import { useShallow } from 'zustand/react/shallow'
+import { useForceUpdate, useWindowEvent } from '../utils'
 import { PILE_COUNT } from '../utils/constants'
-import { Pile } from './Pile'
+import { useGameStore } from '../utils/gameStore'
 import Card from './Card'
-import { WinModal } from './WinModal'
+import { Header } from './Header'
 import { InstructionsModal } from './InstructionsModal'
+import { Pile } from './Pile'
+import { WinModal } from './WinModal'
 
 function App() {
   const state = useGameStore(

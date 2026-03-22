@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useShallow } from 'zustand/shallow'
-import { useGameStore } from '../utils/gameStore'
 import { formatTime } from '../utils'
+import { useGameStore } from '../utils/gameStore'
 
 export const Timer = () => {
   const { currentTime, incrementTimer, hasWon } = useGameStore(

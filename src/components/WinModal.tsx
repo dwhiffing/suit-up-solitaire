@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/shallow'
-import { useGameStore } from '../utils/gameStore'
 import { formatTime, loadBestTimes } from '../utils'
 import { DIFFICULTIES } from '../utils/constants'
+import { useGameStore } from '../utils/gameStore'
 
 export const WinModal = () => {
   const state = useGameStore(
@@ -15,8 +15,7 @@ export const WinModal = () => {
   )
 
   return (
-    <div
-      className={`modal-backdrop ${state.showWinModal ? '' : 'hidden'}`}>
+    <div className={`modal-backdrop ${state.showWinModal ? '' : 'hidden'}`}>
       <div className="flex flex-col justify-center items-center gap-5 bg-surface rounded-lg shadow-xl min-w-75 min-h-50 p-8">
         <h2 className="text-4xl font-bold">
           {DIFFICULTIES[state.suitCount] || ''} Cleared!

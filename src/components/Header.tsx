@@ -25,16 +25,14 @@ export function Header({
 
       <div
         className="flex-1 flex justify-center pointer-events-auto"
-        onClick={() => DEV_MODE && onAutoComplete()}
-      >
+        onClick={() => DEV_MODE && onAutoComplete()}>
         <Timer />
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-4 pointer-events-auto">
         <select
           value={suitCount}
-          onChange={(e) => onSuitCountChange(Number(e.target.value))}
-        >
+          onChange={(e) => onSuitCountChange(Number(e.target.value))}>
           {Object.entries(DIFFICULTIES).map(([suits, label]) => (
             <option key={suits} value={suits} className="bg-option-bg">
               {label} ({suits})

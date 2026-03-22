@@ -1,21 +1,20 @@
-import { useEffect, useState, memo } from 'react'
 import debounce from 'lodash/debounce'
+import { memo, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-
-import { CardBackSVG, CardFront } from './svg'
 import {
   getCardPilePosition,
-  useWindowEvent,
-  useForceUpdate,
   getWinAnimationDelay,
+  useForceUpdate,
+  useWindowEvent,
 } from '../../utils'
-import {
-  useGameStore,
-  type GameState,
-  isPileComplete,
-  isFoundationPileDisabled,
-} from '../../utils/gameStore'
 import { CARD_TRANSITION_DURATION, NUM_RANKS } from '../../utils/constants'
+import {
+  type GameState,
+  isFoundationPileDisabled,
+  isPileComplete,
+  useGameStore,
+} from '../../utils/gameStore'
+import { CardBackSVG, CardFront } from './svg'
 
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
@@ -76,8 +75,7 @@ const Card = ({ cardId }: { cardId: number }) => {
         translate,
         boxShadow,
         willChange: 'transform',
-      }}
-    >
+      }}>
       <CardFront suit={store.suit} rank={store.rank} />
       <div className="card-back">
         <CardBackSVG />
@@ -85,8 +83,7 @@ const Card = ({ cardId }: { cardId: number }) => {
 
       <div
         className="card-disabled-overlay"
-        style={{ opacity: disabled ? 1 : 0 }}
-      >
+        style={{ opacity: disabled ? 1 : 0 }}>
         ✕
       </div>
     </div>

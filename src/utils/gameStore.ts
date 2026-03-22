@@ -1,3 +1,4 @@
+import { chunk } from 'lodash'
 import { create } from 'zustand'
 import {
   getCardPilePosition,
@@ -5,10 +6,9 @@ import {
   loadBestTimes,
   saveBestTimes,
 } from '.'
-import { chunk } from 'lodash'
 import {
-  CARDS,
   CARD_TRANSITION_DURATION,
+  CARDS,
   NUM_RANKS,
   PILE_COUNT,
 } from './constants'
