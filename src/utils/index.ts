@@ -68,11 +68,10 @@ export const formatTime = (
   return `${padTime(minutes)}:${padTime(seconds)}`
 }
 
-export const loadBestTimes = (): Record<number, number> => {
-  const saved = localStorage.getItem('bestTimes')
+export const loadStorage = (key: string): any => {
+  const saved = localStorage.getItem(key)
   return saved ? JSON.parse(saved) : {}
 }
 
-export const saveBestTimes = (bestTimes: Record<number, number>) => {
-  localStorage.setItem('bestTimes', JSON.stringify(bestTimes))
-}
+export const saveStorage = (key: string, value: any) =>
+  localStorage.setItem(key, JSON.stringify(value))

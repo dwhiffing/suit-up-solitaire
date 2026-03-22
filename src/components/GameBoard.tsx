@@ -7,6 +7,7 @@ import Card from './Card'
 import { Header } from './Header'
 import { InstructionsModal } from './InstructionsModal'
 import { Pile } from './Pile'
+import { StatsModal } from './StatsModal'
 import { WinModal } from './WinModal'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
       onMouseMove: state.onMouseMove,
       autoCompleteGame: state.autoCompleteGame,
       openInstructions: state.openInstructions,
+      openStats: state.openStats,
     })),
   )
 
@@ -38,6 +40,7 @@ function App() {
           onSuitCountChange={state.setSuitCount}
           onAutoComplete={state.autoCompleteGame}
           onOpenInstructions={state.openInstructions}
+          onOpenStats={state.openStats}
         />
 
         <div className="flex flex-col justify-center h-full gap-board absolute inset-0">
@@ -67,6 +70,7 @@ function App() {
 
       <WinModal />
       <InstructionsModal />
+      <StatsModal />
     </>
   )
 }

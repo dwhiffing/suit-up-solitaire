@@ -9,12 +9,14 @@ export function Header({
   onSuitCountChange,
   onAutoComplete,
   onOpenInstructions,
+  onOpenStats,
 }: {
   onReset: () => void
   suitCount: number
   onSuitCountChange: (count: number) => void
   onAutoComplete: () => void
   onOpenInstructions: () => void
+  onOpenStats: () => void
 }) {
   const currentDifficulty = DIFFICULTIES[suitCount as keyof typeof DIFFICULTIES]
 
@@ -51,7 +53,10 @@ export function Header({
         <Dropdown
           className="w-10"
           label={<HamburgerSVG />}
-          items={[{ label: 'New Game', onClick: onReset }]}
+          items={[
+            { label: 'New Game', onClick: onReset },
+            { label: 'Stats', onClick: onOpenStats },
+          ]}
         />
       </div>
     </div>

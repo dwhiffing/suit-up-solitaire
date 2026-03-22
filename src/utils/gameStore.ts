@@ -3,8 +3,8 @@ import { create } from 'zustand'
 import {
   getCardPilePosition,
   getWinAnimationDelay,
-  loadBestTimes,
-  saveBestTimes,
+  loadStorage,
+  saveStorage,
 } from '.'
 import {
   CARD_TRANSITION_DURATION,
@@ -30,6 +30,7 @@ export interface GameState {
   winAnimProgress: number
   showWinModal: boolean
   showInstructionsModal: boolean
+  showStatsModal: boolean
   currentTime: number
 }
 
@@ -43,6 +44,8 @@ interface GameStore extends GameState {
   autoCompleteGame: () => void
   openInstructions: () => void
   closeInstructions: () => void
+  openStats: () => void
+  closeStats: () => void
   incrementTimer: () => void
 }
 
@@ -136,11 +139,17 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (intervalId !== null) cancelAnimationFrame(intervalId)
       if (timeoutId !== null) clearTimeout(timeoutId)
 
-      const bestTimes = loadBestTimes()
+      const bestTimes = loadStorage('bestTimes')
       const bestTime = bestTimes[suitCount] ?? Infinity
       if (currentTime < bestTime) {
-        saveBestTimes({ ...bestTimes, [suitCount]: currentTime })
+        saveStorage('bestTimes', { ...bestTimes, [suitCount]: currentTime })
       }
+
+      const winCounts = loadStorage('winCounts')
+      saveStorage('winCounts', {
+        ...winCounts,
+        [suitCount]: (winCounts[suitCount] ?? 0) + 1,
+      })
 
       set({ winStartTime: Date.now() })
 
@@ -247,6 +256,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       set({ showInstructionsModal: true })
     },
     closeInstructions: () => set({ showInstructionsModal: false }),
+    openStats: () => set({ showStatsModal: true }),
+    closeStats: () => set({ showStatsModal: false }),
     incrementTimer: () => set({ currentTime: get().currentTime + 1 }),
   }
 })
@@ -269,6 +280,7 @@ function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
     winAnimProgress: 0,
     showWinModal: false,
     showInstructionsModal: false,
+    showStatsModal: false,
   }
 }
 

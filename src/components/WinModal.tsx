@@ -1,5 +1,5 @@
 import { useShallow } from 'zustand/shallow'
-import { formatTime, loadBestTimes } from '../utils'
+import { formatTime, loadStorage } from '../utils'
 import { DIFFICULTIES } from '../utils/constants'
 import { useGameStore } from '../utils/gameStore'
 
@@ -10,7 +10,8 @@ export const WinModal = () => {
       suitCount: state.suitCount,
       newGame: state.newGame,
       currentTime: state.currentTime,
-      bestTime: loadBestTimes()[state.suitCount],
+      bestTime: loadStorage('bestTimes')[state.suitCount],
+      winCount: loadStorage('winCounts')[state.suitCount] ?? 1,
     })),
   )
 
@@ -21,7 +22,9 @@ export const WinModal = () => {
           {DIFFICULTIES[state.suitCount] || ''} Cleared!
         </h2>
         <div className="flex flex-col items-center gap-2">
-          <p className="text-lg font-mono font-bold">
+          <p className="text-lg font-mono text-center font-bold">
+            <span>Win #{state.winCount}</span>
+            <br />
             <span>Time: {formatTime(state.currentTime, true)}</span>
             <br />
             {state.bestTime && (
