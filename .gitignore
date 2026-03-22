@@ -25,3 +25,5 @@ dist-ssr
 
 solve-check-rs/target
 solve-check-rs/solutions
+# Claude Code
+.claude
