@@ -1,47 +1,6 @@
 import React from 'react'
-import { SUIT_COLORS, SUIT_NAMES } from '../../utils/constants'
 
-const _CardFront = ({ suit, rank }: { suit: Suit; rank: Rank }) => {
-  const color = SUIT_COLORS[suit]
-  const suitName = SUIT_NAMES[suit]
-
-  return (
-    <div className="card-front" style={{ color }}>
-      <div className={`${suitName} corner-rank tl`}>
-        <div className="rank">
-          <span>{rank}</span>
-        </div>
-        <Suit suit={suit} />
-      </div>
-      <div className={`${suitName} corner-rank br`}>
-        <div className="rank">
-          <span>{rank}</span>
-        </div>
-        <Suit suit={suit} />
-      </div>
-
-      <div className="center-suit">
-        <Suit suit={suit} />
-      </div>
-    </div>
-  )
-}
-
-export const CardFront = React.memo(_CardFront)
-
-const Suit = React.memo(({ suit }: { suit: Suit }) => {
-  if (suit === 0) return <HeartSVG />
-  if (suit === 1) return <SpadeSVG />
-  if (suit === 2) return <ClubSVG />
-  if (suit === 3) return <DiamondSVG />
-  if (suit === 4) return <MoonSVG />
-  if (suit === 5) return <StarSVG />
-  if (suit === 6) return <WaterSVG />
-  if (suit === 7) return <ShieldSVG />
-  return null
-})
-
-const ClubSVG = () => (
+export const ClubSVG = () => (
   <svg
     viewBox="0 0 256 259"
     fill="currentColor"
@@ -51,7 +10,7 @@ const ClubSVG = () => (
   </svg>
 )
 
-const DiamondSVG = () => (
+export const DiamondSVG = () => (
   <svg
     viewBox="0 0 232 298"
     fill="currentColor"
@@ -61,7 +20,7 @@ const DiamondSVG = () => (
   </svg>
 )
 
-const HeartSVG = () => (
+export const HeartSVG = () => (
   <svg
     viewBox="0 0 262 263"
     fill="currentColor"
@@ -71,7 +30,7 @@ const HeartSVG = () => (
   </svg>
 )
 
-const MoonSVG = () => (
+export const MoonSVG = () => (
   <svg
     viewBox="0 0 256 256"
     fill="currentColor"
@@ -81,7 +40,7 @@ const MoonSVG = () => (
   </svg>
 )
 
-const ShieldSVG = () => (
+export const ShieldSVG = () => (
   <svg
     viewBox="0 0 216 266"
     fill="currentColor"
@@ -91,7 +50,7 @@ const ShieldSVG = () => (
   </svg>
 )
 
-const SpadeSVG = () => (
+export const SpadeSVG = () => (
   <svg
     viewBox="0 0 234 260"
     fill="currentColor"
@@ -100,7 +59,7 @@ const SpadeSVG = () => (
     <path d="M234 159.903C234 196.123 202.864 212.716 181.334 212.727C157.324 212.727 139.185 201.82 128.385 192.914C129.809 222.38 136.763 243.431 167.968 260H66.0318C97.2372 243.431 104.191 222.38 105.615 192.914C94.8155 201.814 76.67 212.739 52.6663 212.727C31.165 212.727 0 196.123 0 159.903C0 93.7011 46.4967 111.716 116.997 0C187.503 111.716 234 93.7069 234 159.903Z" />
   </svg>
 )
-const StarSVG = () => (
+export const StarSVG = () => (
   <svg
     viewBox="0 0 256 244"
     fill="currentColor"
@@ -109,7 +68,7 @@ const StarSVG = () => (
     <path d="M128 0.00111872C115.427 0.00111872 90.7852 61.7323 80.6138 69.121C70.4412 76.5086 4.096 80.86 0.210597 92.8139C-3.67481 104.767 47.4412 147.271 51.3266 159.225C55.212 171.179 38.8496 235.6 49.0222 242.987C59.1948 250.375 115.427 214.912 128 214.912C140.573 214.912 196.806 250.376 206.978 242.987C217.15 235.6 200.788 171.179 204.673 159.225C208.559 147.271 259.675 104.767 255.789 92.8133C251.904 80.8589 185.559 76.508 175.387 69.1199C165.215 61.7323 140.574 0 128.001 0L128 0.00111872Z" />
   </svg>
 )
-const WaterSVG = () => (
+export const WaterSVG = () => (
   <svg
     viewBox="0 0 194 266"
     fill="currentColor"

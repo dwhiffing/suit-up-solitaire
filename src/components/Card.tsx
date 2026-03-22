@@ -1,20 +1,35 @@
 import debounce from 'lodash/debounce'
-import { memo, useEffect, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import {
   getCardPilePosition,
   getWinAnimationDelay,
   useForceUpdate,
   useWindowEvent,
-} from '../../utils'
-import { CARD_TRANSITION_DURATION, NUM_RANKS } from '../../utils/constants'
+} from '../utils'
+import {
+  CARD_TRANSITION_DURATION,
+  NUM_RANKS,
+  SUIT_COLORS,
+  SUIT_NAMES,
+} from '../utils/constants'
 import {
   type GameState,
   isFoundationPileDisabled,
   isPileComplete,
   useGameStore,
-} from '../../utils/gameStore'
-import { CardBackSVG, CardFront } from './svg'
+} from '../utils/gameStore'
+import {
+  CardBackSVG,
+  ClubSVG,
+  DiamondSVG,
+  HeartSVG,
+  MoonSVG,
+  ShieldSVG,
+  SpadeSVG,
+  StarSVG,
+  WaterSVG,
+} from './svg'
 
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
@@ -137,7 +152,10 @@ const getShallowCardState =
 
 export default memo(Card)
 
-const getCardWinAnimationState = (card: CardType, state: GameState) => {
+const getCardWinAnimationState = (
+  card: CardType,
+  state: GameState,
+): CardShallowState => {
   const { width: cardWidth, height: cardHeight } = getCardPilePosition(card)
   const windowWidth = window.innerWidth
   const windowHeight = window.innerHeight
@@ -202,3 +220,43 @@ const getCardWinAnimationState = (card: CardType, state: GameState) => {
     transitionDelay,
   }
 }
+
+const _CardFront = ({ suit, rank }: { suit: Suit; rank: Rank }) => {
+  const color = SUIT_COLORS[suit]
+  const suitName = SUIT_NAMES[suit]
+
+  return (
+    <div className="card-front" style={{ color }}>
+      <div className={`${suitName} corner-rank tl`}>
+        <div className="rank">
+          <span>{rank}</span>
+        </div>
+        <Suit suit={suit} />
+      </div>
+      <div className={`${suitName} corner-rank br`}>
+        <div className="rank">
+          <span>{rank}</span>
+        </div>
+        <Suit suit={suit} />
+      </div>
+
+      <div className="center-suit">
+        <Suit suit={suit} />
+      </div>
+    </div>
+  )
+}
+
+const CardFront = React.memo(_CardFront)
+
+const Suit = React.memo(({ suit }: { suit: Suit }) => {
+  if (suit === 0) return <HeartSVG />
+  if (suit === 1) return <SpadeSVG />
+  if (suit === 2) return <ClubSVG />
+  if (suit === 3) return <DiamondSVG />
+  if (suit === 4) return <MoonSVG />
+  if (suit === 5) return <StarSVG />
+  if (suit === 6) return <WaterSVG />
+  if (suit === 7) return <ShieldSVG />
+  return null
+})
