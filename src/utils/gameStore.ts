@@ -78,6 +78,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     if (intervalId !== null) cancelAnimationFrame(intervalId)
     if (timeoutId !== null) clearTimeout(timeoutId)
 
+    localStorage.removeItem('cards')
+    localStorage.removeItem('currentTime')
     set(initializeGameState(suitCount))
     setTimeout(() => {
       set({ cards: generateCards(suitCount) })
@@ -85,11 +87,24 @@ export const useGameStore = create<GameStore>((set, get) => {
     }, 0)
   }
   const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
+  const savedCards: CardType[] | null = JSON.parse(
+    localStorage.getItem('cards') ?? 'null',
+  )
+  const savedTime = Number(localStorage.getItem('currentTime') ?? '0')
 
   const hasSeenInstructions =
     localStorage.getItem('hasSeenInstructions') === 'true'
 
-  newGame(suitCount)
+  if (savedCards?.length) {
+    set({
+      ...initializeGameState(suitCount),
+      cards: savedCards,
+      shuffleIndex: savedCards.length,
+      currentTime: savedTime,
+    })
+  } else {
+    newGame(suitCount)
+  }
 
   if (window.matchMedia('(any-pointer: coarse)').matches) {
     document.addEventListener('click', () => {
@@ -104,8 +119,11 @@ export const useGameStore = create<GameStore>((set, get) => {
   }
 
   return {
-    cards: [],
+    cards: savedCards ?? [],
     ...initializeGameState(suitCount),
+    ...(savedCards
+      ? { shuffleIndex: savedCards.length, currentTime: savedTime }
+      : {}),
     newGame,
     setSuitCount: (suitCount: number) => {
       localStorage.setItem('suitCount', suitCount.toString())
@@ -231,6 +249,13 @@ export const useGameStore = create<GameStore>((set, get) => {
     closeInstructions: () => set({ showInstructionsModal: false }),
     incrementTimer: () => set({ currentTime: get().currentTime + 1 }),
   }
+})
+
+useGameStore.subscribe((state) => {
+  if (state.cards.length) {
+    localStorage.setItem('cards', JSON.stringify(state.cards))
+  }
+  localStorage.setItem('currentTime', String(state.currentTime))
 })
 
 function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
