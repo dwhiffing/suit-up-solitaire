@@ -1,4 +1,6 @@
 import { DEV_MODE, DIFFICULTIES } from '../utils/constants'
+import { Dropdown } from './Dropdown'
+import { HamburgerSVG } from './svg'
 import { Timer } from './Timer'
 
 export function Header({
@@ -14,6 +16,8 @@ export function Header({
   onAutoComplete: () => void
   onOpenInstructions: () => void
 }) {
+  const currentDifficulty = DIFFICULTIES[suitCount as keyof typeof DIFFICULTIES]
+
   return (
     <div className="flex justify-between items-center text-white p-3 lg:p-5 relative z-header pointer-events-none">
       <div className="flex-1 flex items-center gap-3 pointer-events-auto">
@@ -29,21 +33,26 @@ export function Header({
         <Timer />
       </div>
 
-      <div className="flex-1 flex items-center justify-end gap-4 pointer-events-auto">
-        <select
-          value={suitCount}
-          onChange={(e) => onSuitCountChange(Number(e.target.value))}>
-          {Object.entries(DIFFICULTIES).map(([suits, label]) => (
-            <option key={suits} value={suits} className="bg-option-bg">
-              {label} ({suits})
-            </option>
-          ))}
-        </select>
+      <div className="flex-1 flex items-center justify-end gap-2 pointer-events-auto">
+        <Dropdown
+          className="w-30"
+          label={
+            <>
+              {currentDifficulty} ({suitCount})
+            </>
+          }
+          items={Object.entries(DIFFICULTIES).map(([suits, label]) => ({
+            label: `${label} (${suits})`,
+            onClick: () => onSuitCountChange(Number(suits)),
+            active: Number(suits) === suitCount,
+          }))}
+        />
 
-        <button onClick={onReset}>
-          <div className="md:hidden">+</div>
-          <div className="hidden md:flex">New Game</div>
-        </button>
+        <Dropdown
+          className="w-10"
+          label={<HamburgerSVG />}
+          items={[{ label: 'New Game', onClick: onReset }]}
+        />
       </div>
     </div>
   )

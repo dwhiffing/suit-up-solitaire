@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant touch (@media (pointer: coarse));
+
 @theme {
   --color-surface: #45a173;
   --color-on-surface: #3d8e66;
@@ -73,12 +75,13 @@
     font-style: italic;
   }
   button {
-    @apply px-3 py-2 rounded bg-on-surface hover:bg-on-surface-active transition-colors font-bold;
+    @apply flex justify-center items-center px-2 py-2 min-w-10 rounded bg-on-surface hover:bg-on-surface-active transition-colors font-bold cursor-pointer;
   }
 
   select {
-    @apply px-3 py-2 rounded bg-on-surface cursor-pointer transition-colors font-bold appearance-none;
+    @apply px-3 py-2 rounded bg-on-surface cursor-pointer transition-colors font-bold appearance-none outline-none;
   }
+
   .card,
   .pile {
     width: var(--base-size);
