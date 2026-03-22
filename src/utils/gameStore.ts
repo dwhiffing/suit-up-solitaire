@@ -78,8 +78,11 @@ export const useGameStore = create<GameStore>((set, get) => {
     if (intervalId !== null) cancelAnimationFrame(intervalId)
     if (timeoutId !== null) clearTimeout(timeoutId)
 
-    set(initializeGame(suitCount))
-    setTimeout(() => animateShuffle(set, get), 500)
+    set(initializeGameState(suitCount))
+    setTimeout(() => {
+      set({ cards: generateCards(suitCount) })
+      setTimeout(() => animateShuffle(set, get), 500)
+    }, 0)
   }
   const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
 
@@ -101,7 +104,8 @@ export const useGameStore = create<GameStore>((set, get) => {
   }
 
   return {
-    ...initializeGame(suitCount),
+    cards: [],
+    ...initializeGameState(suitCount),
     newGame,
     setSuitCount: (suitCount: number) => {
       localStorage.setItem('suitCount', suitCount.toString())
@@ -229,11 +233,25 @@ export const useGameStore = create<GameStore>((set, get) => {
   }
 })
 
-function initializeGame(suitCount: number): GameState {
+function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
+  return {
+    activeCard: null,
+    cursorState: { mouseX: 0, mouseY: 0, pressed: false },
+    shuffleIndex: -1,
+    suitCount,
+    currentTime: 0,
+    winStartTime: null,
+    winAnimProgress: 0,
+    showWinModal: false,
+    showInstructionsModal: false,
+  }
+}
+
+function generateCards(suitCount: number): CardType[] {
   const selectedCards = CARDS.filter((card) => card.suit < suitCount)
 
   const seed = findSolvableSeed(suitCount)
-  const cards = chunk(
+  return chunk(
     seededShuffle(selectedCards, seed),
     Math.ceil(selectedCards.length / PILE_COUNT),
   )
@@ -246,19 +264,6 @@ function initializeGame(suitCount: number): GameState {
       })),
     )
     .map((c, i) => ({ ...c, id: i }))
-
-  return {
-    cards,
-    activeCard: null,
-    cursorState: { mouseX: 0, mouseY: 0, pressed: false },
-    shuffleIndex: -1,
-    suitCount,
-    currentTime: 0,
-    winStartTime: null,
-    winAnimProgress: 0,
-    showWinModal: false,
-    showInstructionsModal: false,
-  }
 }
 
 const getPileAtPoint = (x: number, y: number, cards: CardType[]) =>
