@@ -12,6 +12,7 @@ import {
   NUM_RANKS,
   PILE_COUNT,
 } from './constants'
+import { findSolvableSeed } from './findSolvableSeed'
 import { seededShuffle } from './seededShuffle'
 
 let intervalId: number | null = null
@@ -231,8 +232,9 @@ export const useGameStore = create<GameStore>((set, get) => {
 function initializeGame(suitCount: number): GameState {
   const selectedCards = CARDS.filter((card) => card.suit < suitCount)
 
+  const seed = findSolvableSeed(suitCount)
   const cards = chunk(
-    seededShuffle(selectedCards, Date.now()),
+    seededShuffle(selectedCards, seed),
     Math.ceil(selectedCards.length / PILE_COUNT),
   )
     .flatMap((pile, pileIndex) =>
@@ -275,7 +277,6 @@ const moveCard = (
   const targetCard = cardsInTargetPile.at(-1) ?? null
   const sourcePileIndex = activeCard.pileIndex
 
-  // const movingCards = getCardPile(activeCard.pileIndex, cards).slice(activeCard.cardPileIndex)
   const movingCards = [activeCard]
 
   const pile = document.querySelector(
