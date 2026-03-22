@@ -15,7 +15,7 @@ export function Header({
   onOpenInstructions: () => void
 }) {
   return (
-    <div className="flex justify-between items-center text-white p-3 lg:p-5 relative z-[999] pointer-events-none">
+    <div className="flex justify-between items-center text-white p-3 lg:p-5 relative z-header pointer-events-none">
       <div className="flex-1 flex items-center gap-3 pointer-events-auto">
         <span className="text-2xl whitespace-nowrap font-bold">Suit up</span>
         <button onClick={onOpenInstructions} title="Instructions">
@@ -36,7 +36,7 @@ export function Header({
           onChange={(e) => onSuitCountChange(Number(e.target.value))}
         >
           {Object.entries(DIFFICULTIES).map(([suits, label]) => (
-            <option key={suits} value={suits} className="bg-gray-800">
+            <option key={suits} value={suits} className="bg-option-bg">
               {label} ({suits})
             </option>
           ))}

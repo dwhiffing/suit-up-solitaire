@@ -1,36 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-surface: #45a173;
+  --color-on-surface: #3d8e66;
+  --color-on-surface-active: #337956;
+  --color-surface-card: #ebf0ee;
+  --color-surface-pile: #5db187;
+  --color-surface-pile-border: #7ebf9f;
+  --color-on-surface-pile: #8ac6a8;
+  --color-heart: #e74c3c;
+  --color-overlay: rgb(0 0 0 / 0.27);
+  --color-backdrop: rgb(0 0 0 / 0.2);
+  --color-option-bg: #1f2937;
+
+  --z-index-header: 999;
+  --z-index-modal: 10000;
+  --z-index-card-back: 100000;
+  --z-index-card-overlay: 100001;
+}
 
 @layer base {
   @font-face {
     font-family: 'Roboto';
     src: url('/Roboto.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Roboto';
-    src: url('/Roboto.ttf') format('truetype');
-    font-weight: 800;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Roboto';
-    src: url('/Roboto.ttf') format('truetype');
-    font-weight: 700;
     font-style: normal;
   }
   @font-face {
     font-family: 'Roboto';
     src: url('/Roboto-Italic.ttf') format('truetype');
-    font-weight: 400;
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'Roboto';
-    src: url('/Roboto-Italic.ttf') format('truetype');
-    font-weight: 800;
     font-style: italic;
   }
 
@@ -47,11 +44,19 @@
 
     --base-padding: calc(var(--base-size) * 0.04);
     --base-gap: calc(var(--base-size) * 0.1);
+
+    --card-font-size: calc(var(--base-size) * 0.2);
+    --card-corner-gap: calc(var(--base-size) * 0.03);
+    --card-rank-width: calc(var(--base-size) * 0.12);
+    --card-suit-corner-width: calc(var(--base-size) * 0.14);
+    --card-center-suit-width: calc(var(--base-size) * 0.35);
+    --card-disabled-font-size: calc(var(--base-size) * 0.8);
+    --card-back-padding: calc(var(--base-padding) * 0.8);
+    --card-pile-label-size: calc(var(--base-size) * 0.4);
   }
 
   body {
-    @apply min-h-screen;
-    background-color: #45a173;
+    @apply min-h-screen bg-surface;
     color: white;
     font-family: 'Roboto', sans-serif;
     box-sizing: border-box;
@@ -68,11 +73,11 @@
     font-style: italic;
   }
   button {
-    @apply bg-[#0002] px-3 py-2 rounded hover:bg-[#0003] transition-colors font-[700];
+    @apply px-3 py-2 rounded bg-on-surface hover:bg-on-surface-active transition-colors font-bold;
   }
 
   select {
-    @apply bg-[#0002] px-3 py-2 rounded cursor-pointer transition-colors font-[700];
+    @apply px-3 py-2 rounded bg-on-surface cursor-pointer transition-colors font-bold appearance-none;
   }
   .card,
   .pile {
@@ -89,21 +94,20 @@
   }
 
   .card .card-front {
-    @apply flex flex-col h-full w-full relative justify-center items-center bg-[#ebf0ee];
-    border: 0.05vw solid #0004;
+    @apply flex flex-col h-full w-full relative justify-center items-center bg-surface-card;
+    border: 0.05vw solid var(--color-overlay);
   }
 
   .card .card-back {
-    @apply absolute inset-0 z-[100000] bg-[#ebf0ee] opacity-0 transition-opacity duration-500;
-    padding: calc(var(--base-padding) * 0.8);
-    color: #e74c3c;
+    @apply absolute inset-0 z-card-back bg-surface-card opacity-0 transition-opacity duration-500 text-heart;
+    padding: var(--card-back-padding);
   }
 
   .card .card-disabled-overlay {
-    @apply absolute inset-0 z-[100001] flex items-center justify-center pointer-events-none transition-opacity;
-    font-size: calc(var(--base-size) * 0.8);
-    color: #0004;
-    background-color: #0004;
+    @apply absolute inset-0 z-card-overlay flex items-center justify-center pointer-events-none transition-opacity;
+    font-size: var(--card-disabled-font-size);
+    color: var(--color-overlay);
+    background-color: var(--color-overlay);
   }
 
   .card.face-down .card-back {
@@ -111,17 +115,17 @@
   }
 
   .card .corner-rank {
-    @apply font-bold leading-[1] absolute flex items-center;
-    font-size: calc(var(--base-size) * 0.2);
-    gap: calc(var(--base-size) * 0.03);
+    @apply font-bold leading-none absolute flex items-center;
+    font-size: var(--card-font-size);
+    gap: var(--card-corner-gap);
 
     .rank {
-      width: calc(var(--base-size) * 0.12);
+      width: var(--card-rank-width);
       @apply flex justify-center items-center;
     }
 
     svg {
-      width: calc(var(--base-size) * 0.14);
+      width: var(--card-suit-corner-width);
     }
 
     &.tl {
@@ -136,7 +140,15 @@
   }
 
   .card .center-suit {
-    width: calc(var(--base-size) * 0.35);
+    width: var(--card-center-suit-width);
+  }
+
+  .modal-backdrop {
+    @apply absolute inset-0 flex items-center justify-center bg-backdrop z-modal transition-opacity duration-500;
+  }
+
+  .modal-backdrop.hidden {
+    @apply opacity-0 pointer-events-none;
   }
 
   .gap-board {
@@ -144,7 +156,7 @@
   }
 
   .pile {
-    @apply border-[0.15vw] border-[#ffffff33] bg-[#ffffff22] relative pointer-events-none;
+    @apply border-[0.15vw] border-surface-pile-border bg-surface-pile relative pointer-events-none;
   }
 
   .card {

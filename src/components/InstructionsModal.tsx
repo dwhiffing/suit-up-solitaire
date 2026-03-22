@@ -26,10 +26,10 @@ const INSTRUCTION_PAGES = [
         <br />
         <br />
         For example, a <b>3</b>
-        <span className="text-[#e74c3c]">♥</span> may be moved onto either a{' '}
+        <span className="text-heart">♥</span> may be moved onto either a{' '}
         <b>2</b>
-        <span className="text-[#e74c3c]">♥</span>, a <b>4</b>
-        <span className="text-[#e74c3c]">♥</span>, or an <b>empty pile</b>.
+        <span className="text-heart">♥</span>, a <b>4</b>
+        <span className="text-heart">♥</span>, or an <b>empty pile</b>.
       </>
     ),
   },
@@ -93,20 +93,14 @@ export const InstructionsModal = () => {
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center bg-black/20 z-[10000] transition-opacity duration-[500ms]"
-      style={{
-        opacity: showInstructionsModal ? 1 : 0,
-        pointerEvents: showInstructionsModal ? 'all' : 'none',
-      }}
-      onClick={handleClose}
-    >
+      className={`modal-backdrop ${showInstructionsModal ? '' : 'hidden'}`}
+      onClick={handleClose}>
       <div
-        className="flex flex-col justify-between bg-[#45a173] rounded-lg shadow-xl w-full min-w-[360px] max-w-[500px] min-h-[340px] p-6 m-4"
+        className="flex flex-col justify-between bg-surface rounded-lg shadow-xl w-full min-w-90 max-w-125 min-h-85 p-6 m-4"
         onClick={(e) => {
           e.stopPropagation()
           handleNext()
-        }}
-      >
+        }}>
         <div className="flex-1">
           <h2 className="text-3xl mb-4 font-bold">
             {INSTRUCTION_PAGES[currentPage].title}
@@ -118,13 +112,12 @@ export const InstructionsModal = () => {
 
         <div className="flex items-center justify-between mt-6">
           <button
+            className={currentPage === 0 ? 'opacity-0' : 'opacity-100'}
             onClick={(e) => {
               e.stopPropagation()
               handlePrev()
             }}
-            style={{ opacity: currentPage === 0 ? 0 : 1 }}
-            disabled={currentPage === 0}
-          >
+            disabled={currentPage === 0}>
             Previous
           </button>
 
@@ -132,13 +125,7 @@ export const InstructionsModal = () => {
             {INSTRUCTION_PAGES.map((_, index) => (
               <div
                 key={index}
-                className="w-2 h-2 rounded-full transition-colors"
-                style={{
-                  backgroundColor:
-                    index === currentPage
-                      ? 'rgba(255, 255, 255, 0.9)'
-                      : 'rgba(255, 255, 255, 0.3)',
-                }}
+                className={`w-2 h-2 rounded-full transition-colors ${index === currentPage ? 'bg-white/90' : 'bg-white/30'}`}
               />
             ))}
           </div>

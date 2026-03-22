@@ -4,17 +4,18 @@ export const Pile = ({
 }: {
   pileIndex: number
   pileType: 'foundation' | 'tableau'
-}) => (
-  <div
-    key={`pile-${pileIndex}`}
-    className={`pile ${pileType}`}
-    data-pileindex={pileIndex}
-    data-piletype={pileType}
-  >
-    {pileType === 'foundation' && (
-      <div className="text-[#fff4] absolute inset-0 flex items-center justify-center pointer-events-none text-[calc(var(--base-size)*0.4)] font-[700]">
-        0/9
-      </div>
-    )}
-  </div>
-)
+}) => {
+  return (
+    <div
+      key={`pile-${pileIndex}`}
+      className={`pile ${pileType}`}
+      data-pileindex={pileIndex}
+      data-piletype={pileType}>
+      {pileType === 'foundation' && (
+        <div className="text-on-surface-pile absolute inset-0 flex items-center justify-center pointer-events-none text-(length:--card-pile-label-size) font-bold">
+          0/9
+        </div>
+      )}
+    </div>
+  )
+}
