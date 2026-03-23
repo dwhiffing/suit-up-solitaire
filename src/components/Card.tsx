@@ -67,9 +67,9 @@ const Card = ({ cardId }: { cardId: number }) => {
       ? 'none'
       : store.isActive
         ? 'scale'
-        : 'scale, translate'
+        : 'scale, translate, box-shadow'
   const transitionDelay =
-    store.winAnimationPhase === 0 ? `${store.transitionDelay}ms` : '0ms'
+    store.winAnimationPhase <= 0 ? `${store.transitionDelay}ms` : '0ms'
   const disabled =
     store.isOnDisabledPile &&
     !store.isFaceDown &&
@@ -92,7 +92,7 @@ const Card = ({ cardId }: { cardId: number }) => {
         willChange: 'transform',
       }}>
       <CardFront suit={store.suit} rank={store.rank} />
-      <div className="card-back">
+      <div className="card-back" style={{ transitionDelay }}>
         <CardBackSVG />
       </div>
 
@@ -117,7 +117,7 @@ const getShallowCardState =
     const { mouseX, mouseY, pressed } = state.cursorState
     const { x: xPos, y: yPos, pileType, width } = getCardPilePosition(card)
     const isActive = cardId === state.activeCard?.id
-    const isShuffling = cardId > state.shuffleIndex
+    const isShuffling = state.dealPhase === 0
     const isInCompletedPile = isPileComplete(card.pileIndex, state.cards)
     const isFaceDown = isShuffling || isInCompletedPile
     const isDragging = isActive && pressed
@@ -146,7 +146,7 @@ const getShallowCardState =
       isOnDisabledPile,
       winAnimationPhase: -1,
       disableTransition: false,
-      transitionDelay: 0,
+      transitionDelay: state.dealPhase === 1 ? cardId * 10 : 0,
     }
   }
 

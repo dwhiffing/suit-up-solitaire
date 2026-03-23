@@ -24,7 +24,7 @@ export interface GameState {
   cards: CardType[]
   activeCard: CardType | null
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
-  shuffleIndex: number
+  dealPhase: -1 | 0 | 1 // -1 = not dealing, 0 = cards in deck, 1 = dealing
   suitCount: number
   seed: number | null
   winStartTime: number | null
@@ -59,25 +59,8 @@ let cursorDownPos = { x: 0, y: 0 }
 // tracks the offset between the cursor and the card position
 // so that when you drag, the card anchors to the mouse correctly
 let cursorDelta = { x: 0, y: 0 }
-let shuffleTimeout: number | null = null
+let dealTimeout: number | null = null
 let lastDoubleClickAt = 0
-
-const animateShuffle = (
-  set: (state: Partial<GameStore>) => void,
-  get: () => GameStore,
-) => {
-  if (shuffleTimeout) clearTimeout(shuffleTimeout)
-
-  const increment = () => {
-    const { shuffleIndex, cards } = get()
-    if (shuffleIndex < cards.length) {
-      set({ shuffleIndex: shuffleIndex + 1 })
-      shuffleTimeout = setTimeout(increment, 10)
-    }
-  }
-
-  increment()
-}
 
 export const useGameStore = create<GameStore>((set, get) => {
   const startGame = (suitCount: number, existingSeed?: number) => {
@@ -91,7 +74,14 @@ export const useGameStore = create<GameStore>((set, get) => {
       const { cards, seed } = generateCards(suitCount, existingSeed)
       localStorage.setItem('seed', seed.toString())
       set({ cards, seed })
-      setTimeout(() => animateShuffle(set, get), 500)
+      if (dealTimeout) clearTimeout(dealTimeout)
+      dealTimeout = setTimeout(() => {
+        set({ dealPhase: 1 })
+        dealTimeout = setTimeout(
+          () => set({ dealPhase: -1 }),
+          cards.length * 10 + CARD_TRANSITION_DURATION,
+        )
+      }, 500)
     }, 0)
   }
   const newGame = (suitCount: number) => startGame(suitCount)
@@ -111,7 +101,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     set({
       ...initializeGameState(suitCount),
       cards: savedCards,
-      shuffleIndex: savedCards.length,
+      dealPhase: -1,
       currentTime: savedTime,
     })
   } else {
@@ -135,7 +125,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     ...initializeGameState(suitCount),
     ...(savedCards
       ? {
-          shuffleIndex: savedCards.length,
+          dealPhase: -1,
           currentTime: savedTime,
           seed: savedSeed,
         }
@@ -293,7 +283,7 @@ function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
   return {
     activeCard: null,
     cursorState: { mouseX: 0, mouseY: 0, pressed: false },
-    shuffleIndex: -1,
+    dealPhase: 0,
     suitCount,
     seed: null,
     currentTime: 0,
