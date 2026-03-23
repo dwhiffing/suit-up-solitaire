@@ -407,7 +407,7 @@ const checkAndCascade = (
     set({ activeCard: nextCard })
     setTimeout(
       () => moveCard(nextCard, targetPileIndex, get, set),
-      CARD_TRANSITION_DURATION * 0.7,
+      CARD_TRANSITION_DURATION * 0.5,
     )
   }, 60)
 }
