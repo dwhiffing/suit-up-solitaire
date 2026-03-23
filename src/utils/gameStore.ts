@@ -405,11 +405,11 @@ const checkAndCascade = (
 
   setTimeout(() => {
     set({ activeCard: nextCard })
-    setTimeout(() => {
-      moveCard(nextCard, targetPileIndex, get, set)
-      checkAndCascade(sourcePileIndex, targetPileIndex, get, set)
-    }, CARD_TRANSITION_DURATION * 0.7)
-  }, 0)
+    setTimeout(
+      () => moveCard(nextCard, targetPileIndex, get, set),
+      CARD_TRANSITION_DURATION * 0.7,
+    )
+  }, 60)
 }
 
 const getCardFromPoint = (x: number, y: number, cards: CardType[]) => {
