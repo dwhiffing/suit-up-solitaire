@@ -54,6 +54,7 @@ interface GameStore extends GameState {
 // tracks the initial cursor position when dragging starts
 // so that we can tell how far the cursor moved and tell a click from a drag
 let cursorDownAt = 0
+let lastClickedCardId: number | null = null
 let cursorDownPos = { x: 0, y: 0 }
 // tracks the offset between the cursor and the card position
 // so that when you drag, the card anchors to the mouse correctly
@@ -202,7 +203,9 @@ export const useGameStore = create<GameStore>((set, get) => {
       const clickedCard = getCardFromPoint(clientX, clientY, get().cards)
 
       const isDoubleClick =
-        clickedCard?.id === activeCard?.id && Date.now() - cursorDownAt < 500
+        clickedCard?.id != null &&
+        clickedCard.id === lastClickedCardId &&
+        Date.now() - cursorDownAt < 350
 
       if (isDoubleClick && clickedCard) {
         const pileIndex = findValidFoundationPile(
@@ -233,6 +236,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
       cursorDownPos = { x: clientX, y: clientY }
       cursorDownAt = Date.now()
+      lastClickedCardId = clickedCard?.id ?? null
       if (clickedCard) {
         const { x: cardX, y: cardY } = getCardPilePosition(clickedCard)
         cursorDelta = { x: clientX - cardX, y: clientY - cardY }
