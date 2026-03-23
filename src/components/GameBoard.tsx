@@ -15,14 +15,9 @@ function App() {
     useShallow((state) => ({
       cardCount: state.cards.length,
       suitCount: state.suitCount,
-      setSuitCount: state.setSuitCount,
-      newGame: state.newGame,
       onMouseUp: state.onMouseUp,
       onMouseDown: state.onMouseDown,
       onMouseMove: state.onMouseMove,
-      autoCompleteGame: state.autoCompleteGame,
-      openInstructions: state.openInstructions,
-      openStats: state.openStats,
     })),
   )
 
@@ -34,14 +29,7 @@ function App() {
   return (
     <>
       <div id="ui" className="absolute inset-0">
-        <Header
-          onReset={() => state.newGame(state.suitCount)}
-          suitCount={state.suitCount}
-          onSuitCountChange={state.setSuitCount}
-          onAutoComplete={state.autoCompleteGame}
-          onOpenInstructions={state.openInstructions}
-          onOpenStats={state.openStats}
-        />
+        <Header />
 
         <div className="flex flex-col justify-center h-full gap-board absolute inset-0">
           <div className="w-full flex gap-board items-start justify-center">

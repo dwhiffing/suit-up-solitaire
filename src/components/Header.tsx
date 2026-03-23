@@ -1,37 +1,32 @@
 import { DEV_MODE, DIFFICULTIES } from '../utils/constants'
+import { useGameStore } from '../utils/gameStore'
 import { Dropdown } from './Dropdown'
 import { HamburgerSVG } from './svg'
 import { Timer } from './Timer'
 
-export function Header({
-  onReset,
-  suitCount,
-  onSuitCountChange,
-  onAutoComplete,
-  onOpenInstructions,
-  onOpenStats,
-}: {
-  onReset: () => void
-  suitCount: number
-  onSuitCountChange: (count: number) => void
-  onAutoComplete: () => void
-  onOpenInstructions: () => void
-  onOpenStats: () => void
-}) {
+export function Header() {
+  const suitCount = useGameStore((s) => s.suitCount)
+  const newGame = useGameStore((s) => s.newGame)
+  const restartGame = useGameStore((s) => s.restartGame)
+  const setSuitCount = useGameStore((s) => s.setSuitCount)
+  const autoCompleteGame = useGameStore((s) => s.autoCompleteGame)
+  const openInstructions = useGameStore((s) => s.openInstructions)
+  const openStats = useGameStore((s) => s.openStats)
+
   const currentDifficulty = DIFFICULTIES[suitCount as keyof typeof DIFFICULTIES]
 
   return (
     <div className="flex justify-between items-center text-white p-3 lg:p-5 relative z-header pointer-events-none">
       <div className="flex-1 flex items-center gap-3 pointer-events-auto">
         <span className="text-2xl whitespace-nowrap font-bold">Suit up</span>
-        <button onClick={onOpenInstructions} title="Instructions">
+        <button onClick={openInstructions} title="Instructions">
           ?
         </button>
       </div>
 
       <div
         className="flex-1 flex justify-center pointer-events-auto"
-        onClick={() => DEV_MODE && onAutoComplete()}>
+        onClick={() => DEV_MODE && autoCompleteGame()}>
         <Timer />
       </div>
 
@@ -45,7 +40,7 @@ export function Header({
           }
           items={Object.entries(DIFFICULTIES).map(([suits, label]) => ({
             label: `${label} (${suits})`,
-            onClick: () => onSuitCountChange(Number(suits)),
+            onClick: () => setSuitCount(Number(suits)),
             active: Number(suits) === suitCount,
           }))}
         />
@@ -54,8 +49,9 @@ export function Header({
           className="w-10"
           label={<HamburgerSVG />}
           items={[
-            { label: 'New Game', onClick: onReset },
-            { label: 'Stats', onClick: onOpenStats },
+            { label: 'New Game', onClick: () => newGame(suitCount) },
+            { label: 'Restart', onClick: restartGame },
+            { label: 'Stats', onClick: openStats },
           ]}
         />
       </div>

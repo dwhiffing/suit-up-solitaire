@@ -26,6 +26,7 @@ export interface GameState {
   cursorState: { mouseX: number; mouseY: number; pressed: boolean }
   shuffleIndex: number
   suitCount: number
+  seed: number | null
   winStartTime: number | null
   winAnimProgress: number
   showWinModal: boolean
@@ -36,6 +37,7 @@ export interface GameState {
 
 interface GameStore extends GameState {
   newGame: (suitCount: number) => void
+  restartGame: () => void
   setSuitCount: (count: number) => void
   onMouseDown: (params: MouseParams) => void
   onMouseUp: (params: MouseParams) => void
@@ -77,7 +79,7 @@ const animateShuffle = (
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
-  const newGame = (suitCount: number) => {
+  const startGame = (suitCount: number, existingSeed?: number) => {
     if (intervalId !== null) cancelAnimationFrame(intervalId)
     if (timeoutId !== null) clearTimeout(timeoutId)
 
@@ -85,15 +87,21 @@ export const useGameStore = create<GameStore>((set, get) => {
     localStorage.removeItem('currentTime')
     set(initializeGameState(suitCount))
     setTimeout(() => {
-      set({ cards: generateCards(suitCount) })
+      const { cards, seed } = generateCards(suitCount, existingSeed)
+      localStorage.setItem('seed', seed.toString())
+      set({ cards, seed })
       setTimeout(() => animateShuffle(set, get), 500)
     }, 0)
   }
+  const newGame = (suitCount: number) => startGame(suitCount)
   const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
   const savedCards: CardType[] | null = JSON.parse(
     localStorage.getItem('cards') ?? 'null',
   )
   const savedTime = Number(localStorage.getItem('currentTime') ?? '0')
+  const savedSeed = localStorage.getItem('seed')
+    ? Number(localStorage.getItem('seed'))
+    : null
 
   const hasSeenInstructions =
     localStorage.getItem('hasSeenInstructions') === 'true'
@@ -125,9 +133,17 @@ export const useGameStore = create<GameStore>((set, get) => {
     cards: savedCards ?? [],
     ...initializeGameState(suitCount),
     ...(savedCards
-      ? { shuffleIndex: savedCards.length, currentTime: savedTime }
+      ? {
+          shuffleIndex: savedCards.length,
+          currentTime: savedTime,
+          seed: savedSeed,
+        }
       : {}),
     newGame,
+    restartGame: () => {
+      const { suitCount, seed } = get()
+      if (seed !== null) startGame(suitCount, seed)
+    },
     setSuitCount: (suitCount: number) => {
       localStorage.setItem('suitCount', suitCount.toString())
       set({ suitCount })
@@ -262,8 +278,8 @@ export const useGameStore = create<GameStore>((set, get) => {
   }
 })
 
-useGameStore.subscribe((state) => {
-  if (state.cards.length) {
+useGameStore.subscribe((state, prevState) => {
+  if (state.cards.length && state.cards !== prevState.cards) {
     localStorage.setItem('cards', JSON.stringify(state.cards))
   }
   localStorage.setItem('currentTime', String(state.currentTime))
@@ -275,6 +291,7 @@ function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
     cursorState: { mouseX: 0, mouseY: 0, pressed: false },
     shuffleIndex: -1,
     suitCount,
+    seed: null,
     currentTime: 0,
     winStartTime: null,
     winAnimProgress: 0,
@@ -284,11 +301,14 @@ function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
   }
 }
 
-function generateCards(suitCount: number): CardType[] {
+function generateCards(
+  suitCount: number,
+  existingSeed?: number,
+): { cards: CardType[]; seed: number } {
   const selectedCards = CARDS.filter((card) => card.suit < suitCount)
 
-  const seed = findSolvableSeed(suitCount)
-  return chunk(
+  const seed = existingSeed ?? findSolvableSeed(suitCount)
+  const cards = chunk(
     seededShuffle(selectedCards, seed),
     Math.ceil(selectedCards.length / PILE_COUNT),
   )
@@ -301,6 +321,7 @@ function generateCards(suitCount: number): CardType[] {
       })),
     )
     .map((c, i) => ({ ...c, id: i }))
+  return { cards, seed }
 }
 
 const getPileAtPoint = (x: number, y: number, cards: CardType[]) =>
@@ -352,6 +373,7 @@ const moveCard = (
   })
 
   if (get().cards.every((card) => card.pileIndex >= PILE_COUNT)) {
+    localStorage.removeItem('cards')
     setTimeout(() => get().startWinAnimation(), CARD_TRANSITION_DURATION * 1.5)
   }
 
