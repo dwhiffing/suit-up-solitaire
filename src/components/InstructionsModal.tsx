@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../utils/gameStore'
+import { Modal } from './Modal'
 
 const INSTRUCTION_PAGES = [
   {
@@ -92,15 +93,10 @@ export const InstructionsModal = () => {
   }, [showInstructionsModal])
 
   return (
-    <div
-      className={`modal-backdrop ${showInstructionsModal ? '' : 'hidden'}`}
-      onClick={handleClose}>
+    <Modal show={showInstructionsModal} onClose={handleClose}>
       <div
         className="flex flex-col justify-between bg-surface rounded-lg shadow-xl w-full min-w-90 max-w-125 min-h-85 p-6 m-4"
-        onClick={(e) => {
-          e.stopPropagation()
-          handleNext()
-        }}>
+        onClick={handleNext}>
         <div className="flex-1">
           <h2 className="text-3xl mb-4 font-bold">
             {INSTRUCTION_PAGES[currentPage].title}
@@ -135,6 +131,6 @@ export const InstructionsModal = () => {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }

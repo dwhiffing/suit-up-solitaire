@@ -60,6 +60,7 @@
   html, body {
     height: 100%;
     overflow: hidden;
+    user-select: none;
   }
 
   body {
@@ -148,14 +149,6 @@
 
   .card .center-suit {
     width: var(--card-center-suit-width);
-  }
-
-  .modal-backdrop {
-    @apply fixed inset-0 flex items-center justify-center bg-backdrop z-modal transition-opacity duration-500 overflow-hidden;
-  }
-
-  .modal-backdrop.hidden {
-    @apply opacity-0 pointer-events-none;
   }
 
   .gap-board {

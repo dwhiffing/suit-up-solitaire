@@ -84,3 +84,6 @@ export const loadStorage = (key: string): any => {
 
 export const saveStorage = (key: string, value: any) =>
   localStorage.setItem(key, JSON.stringify(value))
+
+export const cn = (...args: (string | false | null | undefined)[]) =>
+  args.filter(Boolean).join(' ')
