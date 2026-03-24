@@ -57,15 +57,19 @@
     --card-pile-label-size: calc(var(--base-size) * 0.4);
   }
 
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
-    @apply min-h-screen bg-surface;
+    @apply bg-surface;
     color: white;
     font-family: "Roboto", sans-serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     user-select: none;
-    overflow: hidden;
     touch-action: none;
   }
   b {
@@ -147,7 +151,7 @@
   }
 
   .modal-backdrop {
-    @apply absolute inset-0 flex items-center justify-center bg-backdrop z-modal transition-opacity duration-500;
+    @apply fixed inset-0 flex items-center justify-center bg-backdrop z-modal transition-opacity duration-500 overflow-hidden;
   }
 
   .modal-backdrop.hidden {

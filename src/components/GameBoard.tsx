@@ -50,7 +50,7 @@ function App() {
         </div>
       </div>
 
-      <div id="cards" className="absolute inset-0 pointer-events-none">
+      <div id="cards" className="fixed inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: state.cardCount }).map((_, cardId) => (
           <Card key={`card-${cardId}`} cardId={cardId} />
         ))}
