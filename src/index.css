@@ -61,16 +61,16 @@
     height: 100%;
     overflow: hidden;
     user-select: none;
+    -webkit-user-select: none;
   }
 
   body {
-    @apply bg-surface;
+    @apply bg-black;
     color: white;
     font-family: "Roboto", sans-serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    user-select: none;
     touch-action: none;
   }
   b {
@@ -80,11 +80,7 @@
     font-style: italic;
   }
   button {
-    @apply flex justify-center items-center px-2 py-2 min-w-10 rounded bg-on-surface hover:bg-on-surface-active transition-colors font-bold cursor-pointer;
-  }
-
-  select {
-    @apply px-3 py-2 rounded bg-on-surface cursor-pointer transition-colors font-bold appearance-none outline-none;
+    @apply flex justify-center items-center px-2 py-1 lg:py-2 min-w-10 rounded bg-on-surface hover:bg-on-surface-active transition-colors font-bold cursor-pointer;
   }
 
   .card,
@@ -102,8 +98,7 @@
   }
 
   .card .card-front {
-    @apply flex flex-col h-full w-full relative justify-center items-center bg-surface-card;
-    border: 0.05vw solid var(--color-overlay);
+    @apply flex flex-col h-full w-full relative justify-center items-center bg-surface-card lg:border-[0.05vw] lg:border-solid lg:border-overlay;
   }
 
   .card .card-back {

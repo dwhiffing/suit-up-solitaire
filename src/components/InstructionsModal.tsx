@@ -95,13 +95,13 @@ export const InstructionsModal = () => {
   return (
     <Modal show={showInstructionsModal} onClose={handleClose}>
       <div
-        className="flex flex-col justify-between bg-surface rounded-lg shadow-xl w-full min-w-90 max-w-125 min-h-85 p-6 m-4"
+        className="flex flex-col justify-between bg-surface rounded-lg shadow-xl w-[calc(100vw-40px)] min-w-90 max-w-125 min-h-72 p-4 lg:p-6"
         onClick={handleNext}>
         <div className="flex-1">
-          <h2 className="text-3xl mb-4 font-bold">
+          <h2 className="text-2xl lg:text-3xl mb-4 font-bold">
             {INSTRUCTION_PAGES[currentPage].title}
           </h2>
-          <p className="text-lg leading-relaxed whitespace-pre-line">
+          <p className="text-base lg:text-lg leading-relaxed whitespace-pre-line">
             {INSTRUCTION_PAGES[currentPage].content}
           </p>
         </div>

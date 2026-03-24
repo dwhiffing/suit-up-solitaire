@@ -27,7 +27,7 @@ function App() {
   useWindowEvent('pointermove', state.onMouseMove)
 
   return (
-    <>
+    <div className="bg-surface absolute inset-0">
       <div id="ui" className="absolute inset-0">
         <Header />
 
@@ -42,7 +42,7 @@ function App() {
             ))}
           </div>
 
-          <div className="min-h-[20vw] w-full flex gap-board items-start justify-center">
+          <div className="min-h-[22vw] w-full flex gap-board items-start justify-center">
             {Array.from({ length: PILE_COUNT }).map((_, index) => (
               <Pile key={index} pileIndex={index} pileType="tableau" />
             ))}
@@ -50,7 +50,9 @@ function App() {
         </div>
       </div>
 
-      <div id="cards" className="fixed inset-0 pointer-events-none overflow-hidden">
+      <div
+        id="cards"
+        className="fixed inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: state.cardCount }).map((_, cardId) => (
           <Card key={`card-${cardId}`} cardId={cardId} />
         ))}
@@ -59,7 +61,7 @@ function App() {
       <WinModal />
       <InstructionsModal />
       <StatsModal />
-    </>
+    </div>
   )
 }
 

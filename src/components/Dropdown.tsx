@@ -79,7 +79,7 @@ export function Dropdown({
 
   return (
     <div className={cn('relative', className)} ref={ref}>
-      <button className="w-full h-10" onClick={() => setOpen(!open)}>
+      <button className="w-full h-8 lg:h-10" onClick={() => setOpen(!open)}>
         {label}
       </button>
 
