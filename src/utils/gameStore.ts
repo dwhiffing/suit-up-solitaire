@@ -40,7 +40,7 @@ export interface GameState {
 }
 
 interface GameStore extends GameState {
-  newGame: (suitCount: number) => void
+  newGame: (suitCount: number, seed?: number) => void
   restartGame: () => void
   setSuitCount: (count: number) => void
   onMouseDown: (params: MouseParams) => void
@@ -90,7 +90,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       )
     }, 500)
   }
-  const newGame = (suitCount: number) => startGame(suitCount)
+  const newGame = (suitCount: number, seed?: number) => startGame(suitCount, seed)
   const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
   const savedCards: CardType[] | null = JSON.parse(
     localStorage.getItem('cards') ?? 'null',

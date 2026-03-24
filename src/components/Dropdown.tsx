@@ -12,6 +12,7 @@ export function Dropdown({
   items: {
     label: ReactNode
     onClick: () => void
+    onLongClick?: () => void
     active?: boolean
     disabled?: boolean
   }[]
@@ -21,6 +22,8 @@ export function Dropdown({
     () => window.matchMedia('(pointer: coarse)').matches,
   )
   const ref = useRef<HTMLDivElement>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout>>(null)
+  const didLongPress = useRef(false)
 
   useEffect(() => {
     if (!open || isTouch) return
@@ -48,8 +51,27 @@ export function Dropdown({
         isTouch && i < items.length - 1 && 'border-b border-on-surface-active',
       )}
       onClick={() => {
+        if (didLongPress.current) {
+          didLongPress.current = false
+          return
+        }
         setOpen(false)
         item.onClick()
+      }}
+      onPointerDown={() => {
+        if (!item.onLongClick) return
+        didLongPress.current = false
+        longPressTimer.current = setTimeout(() => {
+          didLongPress.current = true
+          setOpen(false)
+          item.onLongClick!()
+        }, 1000)
+      }}
+      onPointerUp={() => {
+        if (longPressTimer.current) clearTimeout(longPressTimer.current)
+      }}
+      onPointerCancel={() => {
+        if (longPressTimer.current) clearTimeout(longPressTimer.current)
       }}>
       {item.label}
     </button>
