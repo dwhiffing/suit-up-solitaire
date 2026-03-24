@@ -35,7 +35,7 @@ import {
 const Card = ({ cardId }: { cardId: number }) => {
   const store = useGameStore(useShallow(getShallowCardState(cardId)))
   const [isActive, setIsActive] = useState(false)
-  const [zIndex, setZIndex] = useState(0)
+  const [zIndex, setZIndex] = useState(store.cardPileIndex)
   const [hasMounted, setHasMounted] = useState(false)
   useWindowEvent('resize', debounce(useForceUpdate(), 100))
   // eslint-disable-next-line react-hooks/set-state-in-effect
