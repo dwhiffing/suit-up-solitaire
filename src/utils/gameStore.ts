@@ -12,7 +12,6 @@ import {
   NUM_RANKS,
   PILE_COUNT,
 } from './constants'
-import { findSolvableSeed } from './findSolvableSeed'
 import { seededShuffle } from './seededShuffle'
 
 let intervalId: number | null = null
@@ -349,7 +348,7 @@ function generateCards(
 ): { cards: CardType[]; seed: number } {
   const selectedCards = CARDS.filter((card) => card.suit < suitCount)
 
-  const seed = existingSeed ?? findSolvableSeed(suitCount)
+  const seed = existingSeed ?? Date.now()
   const cards = chunk(
     seededShuffle(selectedCards, seed),
     Math.ceil(selectedCards.length / PILE_COUNT),
