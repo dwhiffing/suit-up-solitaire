@@ -18,7 +18,7 @@ export const WinModal = () => {
 
   return (
     <Modal show={state.showWinModal}>
-      <div className="flex flex-col justify-center items-center gap-5 bg-surface rounded-lg shadow-xl min-w-75 min-h-50 p-8">
+      <div className="flex flex-col justify-center items-center gap-5 bg-surface rounded-lg shadow-xl w-[calc(100vw-40px)] min-w-75 max-w-100 min-h-50 p-8">
         <h2 className="text-4xl font-bold">
           {DIFFICULTIES[state.suitCount] || ''} Cleared!
         </h2>

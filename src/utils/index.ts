@@ -68,12 +68,12 @@ export const formatTime = (
   const seconds = totalSeconds % 60
 
   if (displayLabels) {
-    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
+    if (hours > 0) return `${hours}h ${minutes}m`
     if (minutes > 0) return `${minutes}m ${seconds}s`
     return `${seconds}s`
   }
 
-  if (hours > 0) return `${hours}:${padTime(minutes)}:${padTime(seconds)}`
+  if (hours > 0) return `${hours}:${padTime(minutes)}`
   return `${padTime(minutes)}:${padTime(seconds)}`
 }
 

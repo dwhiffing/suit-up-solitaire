@@ -12,7 +12,7 @@ export const StatsModal = () => {
 
   return (
     <Modal show={showStatsModal} onClose={closeStats}>
-      <div className="flex flex-col justify-between bg-surface rounded-lg shadow-xl w-full min-w-90 max-w-125 min-h-72 p-6 m-4">
+      <div className="flex flex-col justify-between bg-surface rounded-lg shadow-xl w-[calc(100vw-40px)] min-w-90 max-w-125 min-h-72 p-6 m-4">
         <div className="flex-1">
           <h2 className="text-2xl lg:text-3xl mb-3 font-bold">Statistics</h2>
           <div className="flex flex-col gap-1.5 lg:gap-3">
