@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NUM_RANKS } from './constants'
+import { NUM_RANKS, PILE_COUNT } from './constants'
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -14,46 +14,26 @@ export const useWindowEvent = (event: any, callback: any) => {
   }, [event, callback])
 }
 
-let pileEl: HTMLDivElement | null = null
-let cachedSize = { width: 0, height: 0 }
-let cachedViewport = { w: 0, h: 0 }
 export const getPileSize = () => {
-  const vw = window.innerWidth
-  const vh = window.innerHeight
-  if (cachedSize.width > 0 && vw === cachedViewport.w && vh === cachedViewport.h) return cachedSize
-  cachedViewport = { w: vw, h: vh }
-  pileEl = document.querySelector('.pile')
-  cachedSize = {
+  const pileEl = document.querySelector('.pile') as HTMLDivElement | null
+  return {
     width: pileEl?.offsetWidth ?? 0,
     height: pileEl?.offsetHeight ?? 0,
   }
-  return cachedSize
 }
 
-const cachedPilePos = new Map<number, { x: number; y: number }>()
-let pilePosViewport = { w: 0, h: 0 }
 const getPilePos = (pileIndex: number) => {
-  const vw = window.innerWidth
-  const vh = window.innerHeight
-  if (vw !== pilePosViewport.w || vh !== pilePosViewport.h || pilePosViewport.w === 0) {
-    cachedPilePos.clear()
-    pilePosViewport = { w: vw, h: vh }
-  }
-  const cached = cachedPilePos.get(pileIndex)
-  if (cached) return cached
   const pileEl = document.querySelector(
     `.pile[data-pileindex="${pileIndex}"]`,
   ) as HTMLDivElement | null
   const pilePos = pileEl?.getBoundingClientRect()
-  const pos = { x: pilePos?.x ?? 0, y: pilePos?.y ?? 0 }
-  if (pileEl) cachedPilePos.set(pileIndex, pos)
-  return pos
+  return { x: pilePos?.x ?? 0, y: pilePos?.y ?? 0 }
 }
 
 export const getCardPilePosition = (card: CardType) => {
   const pilePos = getPilePos(card.pileIndex)
   let offsetY = 0
-  const pileType = card.pileIndex <= 11 ? 'tableau' : 'foundation'
+  const pileType = card.pileIndex < PILE_COUNT ? 'tableau' : 'foundation'
 
   const CARD_Y_GAP = window.innerHeight < 500 ? 0.25 : 0.3
   if (pileType === 'tableau') {
