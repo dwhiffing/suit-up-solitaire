@@ -76,10 +76,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       undoTimeoutId = null
     }
 
-    localStorage.removeItem('cards')
-    localStorage.removeItem('currentTime')
     const { cards, seed } = generateCards(suitCount, existingSeed)
     localStorage.setItem('seed', seed.toString())
+    localStorage.setItem('cards', JSON.stringify(cards))
+    localStorage.setItem('currentTime', '0')
     set({ ...initializeGameState(suitCount), cards, seed })
     if (dealTimeout) clearTimeout(dealTimeout)
     dealTimeout = setTimeout(() => {
@@ -103,15 +103,8 @@ export const useGameStore = create<GameStore>((set, get) => {
   const hasSeenInstructions =
     localStorage.getItem('hasSeenInstructions') === 'true'
 
-  if (savedCards?.length) {
-    set({
-      ...initializeGameState(suitCount),
-      cards: savedCards,
-      dealPhase: -1,
-      currentTime: savedTime,
-    })
-  } else {
-    newGame(suitCount)
+  if (!savedCards?.length) {
+    setTimeout(() => newGame(suitCount), 0)
   }
 
   if (
@@ -137,7 +130,7 @@ export const useGameStore = create<GameStore>((set, get) => {
   return {
     cards: savedCards ?? [],
     ...initializeGameState(suitCount),
-    ...(savedCards
+    ...(savedCards?.length
       ? {
           dealPhase: -1,
           currentTime: savedTime,
