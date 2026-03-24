@@ -2,6 +2,7 @@ import chunk from 'lodash/chunk'
 import { create } from 'zustand'
 import {
   getCardPilePosition,
+  getPileSize,
   getWinAnimationDelay,
   loadStorage,
   saveStorage,
@@ -77,20 +78,17 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     localStorage.removeItem('cards')
     localStorage.removeItem('currentTime')
-    set(initializeGameState(suitCount))
-    setTimeout(() => {
-      const { cards, seed } = generateCards(suitCount, existingSeed)
-      localStorage.setItem('seed', seed.toString())
-      set({ cards, seed })
-      if (dealTimeout) clearTimeout(dealTimeout)
-      dealTimeout = setTimeout(() => {
-        set({ dealPhase: 1 })
-        dealTimeout = setTimeout(
-          () => set({ dealPhase: -1 }),
-          cards.length * 10 + CARD_TRANSITION_DURATION,
-        )
-      }, 500)
-    }, 0)
+    const { cards, seed } = generateCards(suitCount, existingSeed)
+    localStorage.setItem('seed', seed.toString())
+    set({ ...initializeGameState(suitCount), cards, seed })
+    if (dealTimeout) clearTimeout(dealTimeout)
+    dealTimeout = setTimeout(() => {
+      set({ dealPhase: 1 })
+      dealTimeout = setTimeout(
+        () => set({ dealPhase: -1 }),
+        cards.length * 10 + CARD_TRANSITION_DURATION,
+      )
+    }, 500)
   }
   const newGame = (suitCount: number) => startGame(suitCount)
   const suitCount = Number(localStorage.getItem('suitCount') ?? '4')
@@ -299,7 +297,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         (posDiff > 5 || timeDiff > 300) &&
         Date.now() - lastDoubleClickAt > 300
       ) {
-        const { width, height } = getCardPilePosition(activeCard)
+        const { width, height } = getPileSize()
         const x = clientX + (width / 2 - cursorDelta.x)
         const y = clientY + (height / 2 - cursorDelta.y)
         const targetPileIndex = getPileAtPoint(x, y, cards)
@@ -367,9 +365,10 @@ function generateCards(
         cardPileIndex: i,
         pileIndex:
           pileIndex >= Math.floor(PILE_COUNT / 2) ? pileIndex + 1 : pileIndex,
+        id: n.suit * NUM_RANKS + n.rank,
       })),
     )
-    .map((c, i) => ({ ...c, id: i }))
+    .sort((a, b) => a.id - b.id)
   return { cards, seed }
 }
 

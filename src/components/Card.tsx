@@ -3,6 +3,7 @@ import React, { memo, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import {
   getCardPilePosition,
+  getPileSize,
   getWinAnimationDelay,
   useForceUpdate,
   useWindowEvent,
@@ -115,7 +116,8 @@ const getShallowCardState =
 
     const { cardPileIndex, suit, rank } = card
     const { mouseX, mouseY, pressed } = state.cursorState
-    const { x: xPos, y: yPos, pileType, width } = getCardPilePosition(card)
+    const { x: xPos, y: yPos, pileType } = getCardPilePosition(card)
+    const { width } = getPileSize()
     const isActive = cardId === state.activeCard?.id
     const isShuffling = state.dealPhase === 0
     const isInCompletedPile = isPileComplete(card.pileIndex, state.cards)
@@ -146,7 +148,10 @@ const getShallowCardState =
       isOnDisabledPile,
       winAnimationPhase: -1,
       disableTransition: false,
-      transitionDelay: state.dealPhase === 1 ? cardId * 10 : 0,
+      transitionDelay:
+        state.dealPhase === 1
+          ? (card.pileIndex * NUM_RANKS + card.cardPileIndex) * 10
+          : 0,
     }
   }
 
@@ -156,7 +161,7 @@ const getCardWinAnimationState = (
   card: CardType,
   state: GameState,
 ): CardShallowState => {
-  const { width: cardWidth, height: cardHeight } = getCardPilePosition(card)
+  const { width: cardWidth, height: cardHeight } = getPileSize()
   const windowWidth = window.innerWidth
   const windowHeight = window.innerHeight
   const index = card.suit * NUM_RANKS + card.rank
