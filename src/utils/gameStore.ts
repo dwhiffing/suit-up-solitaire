@@ -1,4 +1,4 @@
-import { chunk } from 'lodash'
+import chunk from 'lodash/chunk'
 import { create } from 'zustand'
 import {
   getCardPilePosition,
@@ -118,13 +118,16 @@ export const useGameStore = create<GameStore>((set, get) => {
 
   if (
     window.matchMedia('(any-pointer: coarse)').matches &&
-    !window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches
+    !window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)')
+      .matches
   ) {
     document.addEventListener('click', () => {
       if (!document.fullscreenElement)
         document.documentElement
           .requestFullscreen({ navigationUI: 'hide' })
-          .then(() => (screen.orientation as any).lock('landscape').catch(() => {}))
+          .then(() =>
+            (screen.orientation as any).lock('landscape').catch(() => {}),
+          )
     })
   }
 
