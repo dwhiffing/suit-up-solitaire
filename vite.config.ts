@@ -22,9 +22,9 @@ export default defineConfig({
         description: 'A modern twist on classic solitaire.',
         theme_color: '#45a173',
         background_color: '#45a173',
-        display: 'standalone',
-        orientation: 'any',
-        start_url: '/suit-up-solitaire/',
+        display: 'fullscreen',
+        orientation: 'landscape',
+        start_url: '/suit-up-solitaire/?fullscreen=true',
         scope: '/suit-up-solitaire/',
         icons: [
           {

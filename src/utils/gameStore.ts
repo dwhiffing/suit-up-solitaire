@@ -116,10 +116,15 @@ export const useGameStore = create<GameStore>((set, get) => {
     newGame(suitCount)
   }
 
-  if (window.matchMedia('(any-pointer: coarse)').matches) {
+  if (
+    window.matchMedia('(any-pointer: coarse)').matches &&
+    !window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches
+  ) {
     document.addEventListener('click', () => {
       if (!document.fullscreenElement)
-        document.documentElement.requestFullscreen({ navigationUI: 'hide' })
+        document.documentElement
+          .requestFullscreen({ navigationUI: 'hide' })
+          .then(() => (screen.orientation as any).lock('landscape').catch(() => {}))
     })
   }
 
