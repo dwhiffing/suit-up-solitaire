@@ -17,6 +17,7 @@ import { seededShuffle } from './seededShuffle'
 
 let intervalId: number | null = null
 let timeoutId: number | null = null
+let undoTimeoutId: number | null = null
 
 type MouseParams = { clientX: number; clientY: number }
 
@@ -33,6 +34,9 @@ export interface GameState {
   showInstructionsModal: boolean
   showStatsModal: boolean
   currentTime: number
+  undoMoves:
+    | { cardId: number; pileIndex: number; cardPileIndex: number }[]
+    | null
 }
 
 interface GameStore extends GameState {
@@ -42,6 +46,7 @@ interface GameStore extends GameState {
   onMouseDown: (params: MouseParams) => void
   onMouseUp: (params: MouseParams) => void
   onMouseMove: (params: MouseParams) => void
+  undo: () => void
   startWinAnimation: () => void
   autoCompleteGame: () => void
   openInstructions: () => void
@@ -66,6 +71,10 @@ export const useGameStore = create<GameStore>((set, get) => {
   const startGame = (suitCount: number, existingSeed?: number) => {
     if (intervalId !== null) cancelAnimationFrame(intervalId)
     if (timeoutId !== null) clearTimeout(timeoutId)
+    if (undoTimeoutId !== null) {
+      clearTimeout(undoTimeoutId)
+      undoTimeoutId = null
+    }
 
     localStorage.removeItem('cards')
     localStorage.removeItem('currentTime')
@@ -134,6 +143,44 @@ export const useGameStore = create<GameStore>((set, get) => {
     restartGame: () => {
       const { suitCount, seed } = get()
       if (seed !== null) startGame(suitCount, seed)
+    },
+    undo: () => {
+      if (undoTimeoutId !== null) return
+
+      const step = () => {
+        const { undoMoves } = get()
+        if (!undoMoves?.length) {
+          undoTimeoutId = null
+          return
+        }
+        const move = undoMoves[undoMoves.length - 1]
+        const remaining = undoMoves.slice(0, -1)
+        const card = get().cards[move.cardId] ?? null
+
+        set({ activeCard: card })
+        undoTimeoutId = setTimeout(() => {
+          set({
+            activeCard: null,
+            undoMoves: remaining.length ? remaining : null,
+            cards: get().cards.map((c) =>
+              c.id === move.cardId
+                ? {
+                    ...c,
+                    pileIndex: move.pileIndex,
+                    cardPileIndex: move.cardPileIndex,
+                  }
+                : c,
+            ),
+          })
+
+          if (remaining.length) {
+            undoTimeoutId = setTimeout(step, 60)
+          } else {
+            undoTimeoutId = null
+          }
+        }, CARD_TRANSITION_DURATION * 0.5)
+      }
+      step()
     },
     setSuitCount: (suitCount: number) => {
       localStorage.setItem('suitCount', suitCount.toString())
@@ -292,6 +339,7 @@ function initializeGameState(suitCount: number): Omit<GameState, 'cards'> {
     showWinModal: false,
     showInstructionsModal: false,
     showStatsModal: false,
+    undoMoves: null,
   }
 }
 
@@ -326,9 +374,11 @@ const moveCard = (
   pileIndex: number,
   get: () => GameStore,
   set: (state: Partial<GameStore>) => void,
+  appendUndo = false,
 ) => {
-  const cards = get().cards
+  const { cards, undoMoves } = get()
   if (!activeCard || pileIndex === -1) return set({ cards, activeCard: null })
+  const prevMoves = appendUndo ? (undoMoves ?? []) : []
 
   const cardsInTargetPile = getCardPile(pileIndex, cards)
   const targetCard = cardsInTargetPile.at(-1) ?? null
@@ -356,6 +406,14 @@ const moveCard = (
 
   set({
     activeCard: null,
+    undoMoves: [
+      ...prevMoves,
+      {
+        cardId: activeCard.id,
+        pileIndex: activeCard.pileIndex,
+        cardPileIndex: activeCard.cardPileIndex,
+      },
+    ],
     cards: cards.map((card) => {
       let cardPileIndex = movingCards.findIndex((c) => c.id === card.id)
       if (cardPileIndex === -1) return card
@@ -396,7 +454,7 @@ const checkAndCascade = (
   setTimeout(() => {
     set({ activeCard: nextCard })
     setTimeout(
-      () => moveCard(nextCard, targetPileIndex, get, set),
+      () => moveCard(nextCard, targetPileIndex, get, set, true),
       CARD_TRANSITION_DURATION * 0.5,
     )
   }, 60)

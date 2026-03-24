@@ -7,7 +7,7 @@ export function Dropdown({
 }: {
   className?: string
   label: ReactNode
-  items: { label: ReactNode; onClick: () => void; active?: boolean }[]
+  items: { label: ReactNode; onClick: () => void; active?: boolean; disabled?: boolean }[]
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -34,12 +34,13 @@ export function Dropdown({
         className="absolute inset-0 opacity-0 hidden touch:block"
         value=""
         onChange={(e) => {
-          items[Number(e.target.value)].onClick()
+          const item = items[Number(e.target.value)]
+          if (!item.disabled) item.onClick()
           e.target.value = ''
         }}>
         <option value="" disabled hidden />
         {items.map((item, i) => (
-          <option key={i} value={i}>
+          <option key={i} value={i} disabled={item.disabled}>
             {item.label}
           </option>
         ))}
@@ -51,7 +52,8 @@ export function Dropdown({
           {items.map((item, i) => (
             <button
               key={i}
-              className={`w-full px-4 py-2 hover:bg-on-surface-active whitespace-nowrap rounded-none text-right ${item.active ? 'bg-on-surface-active' : 'bg-transparent '}`}
+              disabled={item.disabled}
+              className={`w-full px-4 py-2 whitespace-nowrap rounded-none text-right ${item.disabled ? 'opacity-30' : 'hover:bg-on-surface-active'} ${item.active ? 'bg-on-surface-active' : 'bg-transparent '}`}
               onClick={() => {
                 setOpen(false)
                 item.onClick()

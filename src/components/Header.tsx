@@ -10,6 +10,8 @@ export function Header() {
   const restartGame = useGameStore((s) => s.restartGame)
   const setSuitCount = useGameStore((s) => s.setSuitCount)
   const autoCompleteGame = useGameStore((s) => s.autoCompleteGame)
+  const undo = useGameStore((s) => s.undo)
+  const canUndo = useGameStore((s) => Boolean(s.undoMoves?.length))
   const openInstructions = useGameStore((s) => s.openInstructions)
   const openStats = useGameStore((s) => s.openStats)
 
@@ -49,6 +51,7 @@ export function Header() {
           className="w-10"
           label={<HamburgerSVG />}
           items={[
+            { label: 'Undo', onClick: undo, disabled: !canUndo },
             { label: 'New Game', onClick: () => newGame(suitCount) },
             { label: 'Restart', onClick: restartGame },
             { label: 'Stats', onClick: openStats },
